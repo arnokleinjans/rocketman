@@ -20,7 +20,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             font-family: 'Arial Rounded MT Bold', 'Helvetica', sans-serif;
         }
@@ -28,11 +28,20 @@
         canvas {
             display: block;
             max-width: 100vw;
-            max-height: 100vh;
+            max-height: 100dvh;
             border-radius: 10px;
             box-shadow: 0 0 60px rgba(255, 107, 53, 0.4);
             outline: none;
             cursor: pointer;
+        }
+
+        @media (pointer: coarse) {
+            canvas {
+                border-radius: 0;
+                box-shadow: none;
+                width: 100vw;
+                height: 100dvh;
+            }
         }
 
         #nameOverlay {
@@ -263,7 +272,12 @@
         let musicTempo = 250;
         let musicActive = false;
         function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const buf = audioCtx.createBuffer(1, 1, 22050);
+                const src = audioCtx.createBufferSource();
+                src.buffer = buf; src.connect(audioCtx.destination); src.start(0);
+            }
             if (audioCtx.state === 'suspended') audioCtx.resume();
             canvas.focus();
         }
@@ -975,6 +989,19 @@
                 ctx.restore(); ctx.globalAlpha = 1;
                 popup.timer--;
             }
+            if (isMobile) {
+                const bx = W - 84, by = H - 84, bw = 74, bh = 74;
+                const active = touchRight && ammo > 0;
+                ctx.globalAlpha = ammo > 0 ? (active ? 0.95 : 0.7) : 0.3;
+                ctx.fillStyle = active ? 'rgba(255,107,53,0.9)' : 'rgba(0,0,0,0.5)';
+                ctx.strokeStyle = ammo > 0 ? '#ff6b35' : '#555';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 18); ctx.fill(); ctx.stroke();
+                ctx.font = '32px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillStyle = '#fff'; ctx.shadowBlur = 0;
+                ctx.fillText('💥', bx + bw / 2, by + bh / 2 + 11);
+                ctx.globalAlpha = 1; ctx.lineWidth = 1;
+            }
         }
         function drawStars(stars, scrollDir) {
             stars.forEach(s => {
@@ -1068,8 +1095,9 @@
             if (gameMode === 'menu' || gameMode === 'levelSelect' || gameMode === 'levelIntro' || gameMode === 'cutscene' || gameMode === 'gameOver' || gameMode === 'levelComplete') {
                 handleClick(cx, cy); return;
             }
-            touchPos = { x: cx, y: cy };
-            if (cx > W * 0.7) touchRight = true; else touchLeft = true;
+            const onShootBtn = isMobile && cx > W - 90 && cy > H - 90;
+            if (onShootBtn) { touchRight = true; }
+            else { touchPos = { x: cx, y: cy }; if (cx > W * 0.7) touchRight = true; else touchLeft = true; }
         }, { passive: false });
         canvas.addEventListener('touchmove', e => {
             e.preventDefault();
@@ -1096,6 +1124,7 @@
         let goalWasPreviouslyBeaten = false;
         let newRecordAnnounced = false;
         let devUnlocked = false;
+        const isMobile = navigator.maxTouchPoints > 0;
 
         function showNameInputOverlay(scoreTotal, callback, prevBest) {
             const overlay = document.getElementById('nameOverlay');
@@ -1514,19 +1543,21 @@
             ctx.fillText('🚀  SPELEN', W / 2, by + bh / 2 + 7);
             ctx.restore();
 
-            // Reset button (bottom right)
-            ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.roundRect(W - 110, H - 30, 100, 20, 5); ctx.fill();
-            ctx.fillStyle = '#ff6b35'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText('RESET VOORTGANG', W - 60, H - 17);
+            if (!isMobile) {
+                // Reset button (bottom right)
+                ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.roundRect(W - 110, H - 30, 100, 20, 5); ctx.fill();
+                ctx.fillStyle = '#ff6b35'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText('RESET VOORTGANG', W - 60, H - 17);
 
-            // Dev unlock toggle (bottom left)
-            const ux = 10, uy = H - 28;
-            ctx.fillStyle = devUnlocked ? 'rgba(74,255,100,0.2)' : 'rgba(255,255,255,0.08)';
-            ctx.beginPath(); ctx.roundRect(ux, uy, 95, 18, 5); ctx.fill();
-            ctx.fillStyle = devUnlocked ? '#4fff64' : '#888';
-            ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
-            ctx.fillText((devUnlocked ? '☑' : '☐') + ' Unlock alle levels', ux + 5, uy + 13);
-            ctx.textAlign = 'center';
+                // Dev unlock toggle (bottom left)
+                const ux = 10, uy = H - 28;
+                ctx.fillStyle = devUnlocked ? 'rgba(74,255,100,0.2)' : 'rgba(255,255,255,0.08)';
+                ctx.beginPath(); ctx.roundRect(ux, uy, 95, 18, 5); ctx.fill();
+                ctx.fillStyle = devUnlocked ? '#4fff64' : '#888';
+                ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+                ctx.fillText((devUnlocked ? '☑' : '☐') + ' Unlock alle levels', ux + 5, uy + 13);
+                ctx.textAlign = 'center';
+            }
         }
 
         function handleClick(cx, cy) {
@@ -1543,18 +1574,18 @@
                     selectLevel(isUnlocked(4) ? 4 : isUnlocked(3) ? 3 : isUnlocked(2) ? 2 : 1);
                     return;
                 }
-                // Dev unlock toggle (bottom left)
-                if (cx > 10 && cx < 105 && cy > H - 28 && cy < H - 10) {
-                    devUnlocked = !devUnlocked; return;
-                }
-
-                // Reset progress button
-                if (cx > W - 110 && cx < W && cy > H - 30 && cy < H) {
-                    if (confirm("Weet je zeker dat je alle voortgang wilt wissen? Alle medailles en ontgrendelde familieleden gaan verloren!")) {
-                        localStorage.removeItem('rocketAdv.progress');
-                        localStorage.removeItem('rocketAdv.lb');
-                        // Optioneel: herlaad de pagina of reset variabelen
-                        location.reload();
+                if (!isMobile) {
+                    // Dev unlock toggle (bottom left)
+                    if (cx > 10 && cx < 105 && cy > H - 28 && cy < H - 10) {
+                        devUnlocked = !devUnlocked; return;
+                    }
+                    // Reset progress button
+                    if (cx > W - 110 && cx < W && cy > H - 30 && cy < H) {
+                        if (confirm("Weet je zeker dat je alle voortgang wilt wissen? Alle medailles en ontgrendelde familieleden gaan verloren!")) {
+                            localStorage.removeItem('rocketAdv.progress');
+                            localStorage.removeItem('rocketAdv.lb');
+                            location.reload();
+                        }
                     }
                 }
                 return;
