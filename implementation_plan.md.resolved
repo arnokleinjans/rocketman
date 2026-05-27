@@ -1,0 +1,37 @@
+# Endless Mode per Level
+
+Dit plan ontkoppelt de `triggerLevelComplete()` functie van het behalen van de mijlpaal in alle 4 de levels, om in plaats daarvan aan de wens te voldoen waarbij je het level door blijft spelen voor een hogere topscore!
+
+## User Review Required
+
+Is het goed dat, zodra je het doel behaald hebt, het "Game Over" scherm wordt vervangen door het "Level Voltooid" scherm? 
+*Dus: Je haalt het de doelstelling -> De statusbalk verdwijnt en de Endless Modus start -> Je blijft spelen zolang je kan -> Als je uiteindelijk kapot geschoten wordt of neerstort, telt dit NIET als verliezen maar rolt de "Level Voltooid" cutscene over je scherm waarin je familie bevrijd wordt met je uiteindelijke topscore.*
+
+## Proposed Changes
+
+### 1. Introductie van `levelGoalBeaten` Status
+- Het spel krijgt een nieuw globale variabele `levelGoalBeaten` die teruggezet wordt naar `false` bij de start van een level.
+- De logica van `updateLevel1` tot `updateLevel4` wordt aangepast: we roepen niet langer `triggerLevelComplete()` direct aan zodra de score (of baas-dood) gehaald is. In de plaats daarvan veranderen we de boolean naar `true` en tonen we een grote popup: *"DOEL BEHAALD — BOUW JE HIGHSCORE UIT!"*.
+- Er stonden in sommige levels nog fail-safe doden ingebouwd (e.g. `lvlFrames >= lvlTimeout triggerDeath();`). Deze harde tijdsdrempels slopen we eruit zodat je werkelijk *eindeloos* kunt blijven overleven na het behalen van het doel (tenzij je Level 4 echt op tijd doet). We zullen in level 4 op tijd gewoon de lasers dodelijker maken in plaats van het spel de nek om draaien.
+
+### 2. Visuele HUD update
+- Zodra `levelGoalBeaten === true` verbergen we de "Doel: X punten" progressiebalk. We tekenen op diezelfde plek een gouden triomfantelijke tekst: *"DOEL BEHAALD — EINDELOZE MODUS"*.
+
+### 3. Sterven = Winnen (als het doel behaald is)
+- In de centrale game loop passen we het dodelijke moment aan. Valt je timer op 0 nadat je schip geëxplodeerd is (`deathTimer <= 0`)?
+  - Als `levelGoalBeaten === true`: Laat dan niet *Game Over* zien, maar activeer `triggerLevelComplete()` (inclusief het redden van de familie en het opslaan van de score)!
+  - Als `levelGoalBeaten === false`: Laat net als vroeger het standaard *Game Over* scherm zien.
+
+#### [MODIFY] [RocketmanAdventure.html](file:///Users/arnokleinjans/Antigravity/Spelletjes/Rocketman/RocketmanAdventure.html)
+- Verplaatsen van cutscene en opslaglogica naar het einde van de stervens-fase afhankelijk van het behalen van de quota.
+- HUD teken-logs updaten (lijn 1056-1061, 1220-1223, 1368-1369, 1560-1561) in alle levels.
+- Time-out executies weghalen.
+
+## Open Questions
+> [!IMPORTANT]
+> Is dit exact hoe je het voor je zag? De speler "mag" simpelweg niet meer het level uit tenzij hij stuk gaat!
+
+## Verification Plan
+1. Start Level 1, verzamel 25 punten.
+2. Controleer of de "Doel behaald" text in beeld komt en je gewoon door kan blijven vliegen.
+3. Vlieg intentioneel tegen een wolk aan *nadat* het doel gehaald is, en verifieer dat het Level Voltooid-scherm verschijnt en Level 2 ontgrendelt in plaats van een Game Over.

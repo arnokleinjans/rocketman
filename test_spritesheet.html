@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Spritesheet Tester</title>
+<style>
+  body { background: #0d1a3a; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 16px; font-family: sans-serif; color: #fff; gap: 12px; box-sizing: border-box; }
+  h2 { margin: 0; color: #FFD700; }
+  #main { display: flex; flex-direction: row; align-items: flex-start; gap: 20px; }
+  canvas { border-radius: 12px; flex-shrink: 0; background: #111827; }
+  label { font-size: 13px; color: #aaa; display: block; }
+  input[type=range] { width: 100%; }
+  input[type=number] { width: 50px; background: #1a2a4a; color: #fff; border: 1px solid #334; border-radius: 4px; padding: 2px 4px; }
+  button { padding: 6px 10px; cursor: pointer; border-radius: 6px; border: none; }
+  .controls { display: flex; flex-direction: column; gap: 6px; width: 270px; max-height: 92vh; overflow-y: auto; background: #0a1228; border-radius: 10px; padding: 10px; box-sizing: border-box; }
+  .section { border-top: 1px solid #223; margin-top: 4px; }
+  .sec-hdr { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 5px 0; user-select: none; }
+  .sec-hdr:hover b { color: #ffe066 !important; }
+  .sec-body { padding-bottom: 4px; }
+  .sec-body.collapsed { display: none; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  #saveBtn { background: #FFD700; color: #000; font-weight: bold; width: 100%; padding: 8px; }
+  #loadJsonBtn { background: #4a9eff; color: #fff; font-weight: bold; width: 100%; padding: 8px; }
+  #status { font-size: 12px; color: #4f4; min-height: 16px; }
+  #dropzone { border: 2px dashed #4a9eff; border-radius: 10px; padding: 16px; text-align: center; color: #4a9eff; font-size: 14px; cursor: pointer; }
+  #dropzone:hover { background: rgba(74,158,255,0.08); }
+  .frame-panel { background: #111f3a; border-radius: 8px; padding: 8px; margin-top: 4px; }
+  .frame-panel label { font-size: 12px; }
+  .slider-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+  .slider-row span.lbl { font-size: 12px; color: #aaa; width: 22px; flex-shrink: 0; }
+  .slider-row span.val { font-size: 12px; color: #fff; width: 32px; text-align: right; flex-shrink: 0; }
+  .slider-row input[type=range] { flex: 1; }
+</style>
+</head>
+<body>
+<h2>🎞 Spritesheet Tester</h2>
+<div id="main">
+<canvas id="c" width="450" height="380"></canvas>
+<div class="controls">
+
+  <!-- Laad spritesheet -->
+  <div id="dropzone" onclick="document.getElementById('sheetFile').click()">
+    📁 Klik of sleep spritesheet hier
+    <div id="sheetName" style="color:#fff;font-size:12px;margin-top:4px;"></div>
+  </div>
+  <input type="file" id="sheetFile" accept="image/*" style="display:none">
+
+  <!-- Afspelen -->
+  <div style="display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid #223;">
+    <button id="prevBtn">◀</button>
+    <button id="pauseBtn">⏸</button>
+    <button id="nextBtn">▶</button>
+    <span id="frameLabel" style="font-size:13px;color:#aaa;margin-left:4px;">Frame: 1 / 6</span>
+  </div>
+
+  <!-- Grid -->
+  <div class="section">
+    <div class="sec-hdr" onclick="toggleSection(this)">
+      <b style="color:#FFD700;font-size:13px;">⚙️ Grid</b><span>▾</span>
+    </div>
+    <div class="sec-body">
+      <div class="row">
+        <label style="display:inline">Kol</label><input type="number" id="colsInput" value="3" min="1" max="20">
+        <label style="display:inline">Rij</label><input type="number" id="rowsInput" value="2" min="1" max="20">
+        <label style="display:inline">Fr</label><input type="number" id="framesInput" value="6" min="1" max="40">
+      </div>
+      <button id="applyGridBtn" style="margin-top:4px;background:#334;color:#fff;width:100%;">↺ Pas toe</button>
+    </div>
+  </div>
+
+  <!-- Per-frame correctie (direct onder Grid) -->
+  <div class="section">
+    <div class="sec-hdr" onclick="toggleSection(this)">
+      <b style="color:#FFD700;font-size:13px;">🎞 Per-frame correctie</b><span>▾</span>
+    </div>
+    <div class="sec-body">
+      <div class="frame-panel">
+        <div style="font-size:12px;color:#FFD700;font-weight:bold;margin-bottom:6px;" id="framePanelTitle">Frame 1</div>
+        <div class="slider-row">
+          <span class="lbl">◀▶</span>
+          <input type="range" id="slL" min="-200" max="400" value="0">
+          <span class="val" id="slLVal">0</span>
+        </div>
+        <div class="slider-row">
+          <span class="lbl">▶◀</span>
+          <input type="range" id="slR" min="-200" max="400" value="0">
+          <span class="val" id="slRVal">0</span>
+        </div>
+        <div class="slider-row">
+          <span class="lbl">▲▼</span>
+          <input type="range" id="slY" min="-200" max="400" value="0">
+          <span class="val" id="slYVal">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weergave -->
+  <div class="section">
+    <div class="sec-hdr" onclick="toggleSection(this)">
+      <b style="color:#FFD700;font-size:13px;">👁 Weergave</b><span>▾</span>
+    </div>
+    <div class="sec-body">
+      <label><input type="checkbox" id="crosshair" checked> Kruislijn</label>
+      <label>Grootte: <span id="sizeLabel">200</span> px</label>
+      <input type="range" id="sizeSlider" min="60" max="450" value="200">
+      <label>Snelheid: <span id="fpsLabel">8</span> fps</label>
+      <input type="range" id="fpsSlider" min="1" max="24" value="8">
+    </div>
+  </div>
+
+  <!-- Globaal bijsnijden -->
+  <div class="section">
+    <div class="sec-hdr" onclick="toggleSection(this)">
+      <b style="color:#FFD700;font-size:13px;">✂️ Globaal bijsnijden</b><span>▾</span>
+    </div>
+    <div class="sec-body">
+      <label>Links: <span id="padLLabel">0</span> px</label>
+      <input type="range" id="padLSlider" min="0" max="300" value="0">
+      <label>Rechts: <span id="padRLabel">0</span> px</label>
+      <input type="range" id="padRSlider" min="0" max="300" value="0">
+    </div>
+  </div>
+
+  <!-- Opslaan / laden -->
+  <div class="section">
+    <div class="sec-hdr" onclick="toggleSection(this)">
+      <b style="color:#FFD700;font-size:13px;">💾 Opslaan / laden</b><span>▾</span>
+    </div>
+    <div class="sec-body">
+      <button id="saveBtn">💾 Sla op als JSON</button>
+      <button id="loadJsonBtn" style="margin-top:4px;">📂 Laad JSON</button>
+      <input type="file" id="loadFile" accept=".json" style="display:none">
+      <div id="status"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+
+  let COLS = 3, ROWS = 2, FRAMES = 6;
+  let fps = 8, padL = 0, padR = 0, paused = false, maxSize = 200;
+  let offsets = [], offsetsR = [], offsetsY = [];
+  let frameIndex = 0, lastTime = 0;
+  let spriteName = '';
+
+  function toggleSection(hdr) {
+    const body = hdr.nextElementSibling;
+    const arrow = hdr.querySelector('span');
+    body.classList.toggle('collapsed');
+    arrow.textContent = body.classList.contains('collapsed') ? '▸' : '▾';
+  }
+
+  // ── Spritesheet laden ─────────────────────────────────────────
+  function loadSheet(file) {
+    spriteName = file.name.replace(/\.[^.]+$/, '');
+    document.getElementById('sheetName').textContent = file.name;
+    const url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); };
+    img.src = url;
+  }
+  document.getElementById('sheetFile').onchange = e => { if (e.target.files[0]) loadSheet(e.target.files[0]); };
+  const dz = document.getElementById('dropzone');
+  dz.ondragover = e => { e.preventDefault(); dz.style.background = 'rgba(74,158,255,0.15)'; };
+  dz.ondragleave = () => { dz.style.background = ''; };
+  dz.ondrop = e => { e.preventDefault(); dz.style.background = ''; if (e.dataTransfer.files[0]) loadSheet(e.dataTransfer.files[0]); };
+
+  // ── Per-frame data ────────────────────────────────────────────
+  function initArrays() {
+    offsets  = Array(FRAMES).fill(0);
+    offsetsR = Array(FRAMES).fill(0);
+    offsetsY = Array(FRAMES).fill(0);
+  }
+
+  function updateFramePanel() {
+    const i = frameIndex;
+    document.getElementById('framePanelTitle').textContent = `Frame ${i + 1} van ${FRAMES}`;
+    document.getElementById('slL').value = offsets[i];   document.getElementById('slLVal').textContent = offsets[i];
+    document.getElementById('slR').value = offsetsR[i];  document.getElementById('slRVal').textContent = offsetsR[i];
+    document.getElementById('slY').value = offsetsY[i];  document.getElementById('slYVal').textContent = offsetsY[i];
+  }
+
+  document.getElementById('slL').oninput = function() { offsets[frameIndex]  = parseInt(this.value); document.getElementById('slLVal').textContent = offsets[frameIndex]; };
+  document.getElementById('slR').oninput = function() { offsetsR[frameIndex] = parseInt(this.value); document.getElementById('slRVal').textContent = offsetsR[frameIndex]; };
+  document.getElementById('slY').oninput = function() { offsetsY[frameIndex] = parseInt(this.value); document.getElementById('slYVal').textContent = offsetsY[frameIndex]; };
+
+  // ── Grid ──────────────────────────────────────────────────────
+  document.getElementById('applyGridBtn').onclick = function() {
+    COLS   = parseInt(document.getElementById('colsInput').value)   || 3;
+    ROWS   = parseInt(document.getElementById('rowsInput').value)   || 2;
+    FRAMES = parseInt(document.getElementById('framesInput').value) || 6;
+    frameIndex = 0;
+    initArrays();
+    updateFramePanel();
+    document.getElementById('frameLabel').textContent = `Frame: 1 / ${FRAMES}`;
+  };
+
+  // ── Overige sliders ───────────────────────────────────────────
+  document.getElementById('sizeSlider').oninput = function() { maxSize = parseInt(this.value); document.getElementById('sizeLabel').textContent = maxSize; };
+  document.getElementById('fpsSlider').oninput  = function() { fps  = parseInt(this.value); document.getElementById('fpsLabel').textContent  = fps; };
+  document.getElementById('padLSlider').oninput = function() { padL = parseInt(this.value); document.getElementById('padLLabel').textContent = padL; };
+  document.getElementById('padRSlider').oninput = function() { padR = parseInt(this.value); document.getElementById('padRLabel').textContent = padR; };
+
+  // ── Afspeelknoppen ────────────────────────────────────────────
+  function setFrame(i) {
+    frameIndex = ((i % FRAMES) + FRAMES) % FRAMES;
+    document.getElementById('frameLabel').textContent = `Frame: ${frameIndex+1} / ${FRAMES}`;
+    updateFramePanel();
+  }
+  document.getElementById('pauseBtn').onclick = function() { paused = !paused; this.textContent = paused ? '▶' : '⏸'; };
+  document.getElementById('prevBtn').onclick  = function() { paused = true; document.getElementById('pauseBtn').textContent = '▶'; setFrame(frameIndex - 1); };
+  document.getElementById('nextBtn').onclick  = function() { paused = true; document.getElementById('pauseBtn').textContent = '▶'; setFrame(frameIndex + 1); };
+
+  // ── JSON opslaan ─────────────────────────────────────────────
+  document.getElementById('saveBtn').onclick = async function() {
+    const data = { sprite: spriteName, cols: COLS, rows: ROWS, frames: FRAMES, fps, padL, padR,
+      frameOffsets: Array.from({length: FRAMES}, (_, i) => ({ L: offsets[i], R: offsetsR[i], Y: offsetsY[i] })) };
+    const json = JSON.stringify(data, null, 2);
+    const filename = (spriteName || 'sprite') + '_anim.json';
+    try {
+      const fh = await window.showSaveFilePicker({ suggestedName: filename, types: [{ description: 'JSON', accept: {'application/json': ['.json']} }] });
+      const w = await fh.createWritable(); await w.write(json); await w.close();
+      setStatus('✓ Opgeslagen!');
+    } catch(e) {
+      const a = document.createElement('a'); a.href = 'data:application/json,' + encodeURIComponent(json); a.download = filename; a.click();
+      setStatus('✓ Gedownload — zet in resources/');
+    }
+  };
+
+  // ── JSON laden ────────────────────────────────────────────────
+  document.getElementById('loadJsonBtn').onclick = () => document.getElementById('loadFile').click();
+  document.getElementById('loadFile').onchange = function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if (d.cols)   { COLS   = d.cols;   document.getElementById('colsInput').value   = COLS; }
+        if (d.rows)   { ROWS   = d.rows;   document.getElementById('rowsInput').value   = ROWS; }
+        if (d.frames) { FRAMES = d.frames; document.getElementById('framesInput').value = FRAMES; }
+        frameIndex = 0;
+        initArrays();
+        if (d.fps)  { fps  = d.fps;  document.getElementById('fpsSlider').value  = fps;  document.getElementById('fpsLabel').textContent  = fps; }
+        if (d.padL !== undefined) { padL = d.padL; document.getElementById('padLSlider').value = padL; document.getElementById('padLLabel').textContent = padL; }
+        if (d.padR !== undefined) { padR = d.padR; document.getElementById('padRSlider').value = padR; document.getElementById('padRLabel').textContent = padR; }
+        if (d.frameOffsets) d.frameOffsets.forEach((f, i) => {
+          if (i >= FRAMES) return;
+          offsets[i]  = f.L || 0;
+          offsetsR[i] = f.R || 0;
+          offsetsY[i] = f.Y || 0;
+        });
+        document.getElementById('frameLabel').textContent = `Frame: 1 / ${FRAMES}`;
+        updateFramePanel();
+        setStatus('✓ JSON geladen!');
+      } catch(err) { setStatus('✗ Ongeldig JSON', true); }
+    };
+    reader.readAsText(file); this.value = '';
+  };
+
+  function setStatus(msg, err) {
+    const el = document.getElementById('status');
+    el.textContent = msg; el.style.color = err ? '#f44' : '#4f4';
+  }
+
+  // ── Draw ──────────────────────────────────────────────────────
+  function draw(ts) {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!img.src || !img.complete || !img.naturalWidth) return;
+
+    if (!paused && ts - lastTime >= 1000 / fps) {
+      frameIndex = (frameIndex + 1) % FRAMES;
+      lastTime = ts;
+      document.getElementById('frameLabel').textContent = `Frame: ${frameIndex+1} / ${FRAMES}`;
+      updateFramePanel();
+    }
+
+    const fw = Math.floor(img.naturalWidth  / COLS);
+    const fh = Math.floor(img.naturalHeight / ROWS);
+    const col = frameIndex % COLS;
+    const row = Math.floor(frameIndex / COLS);
+
+    const offL = offsets[frameIndex]  || 0;
+    const offR = offsetsR[frameIndex] || 0;
+    const offY = offsetsY[frameIndex] || 0;
+    const srcX = col * fw + padL + offL;
+    const srcW = fw - padL - padR - offL - offR;
+    const srcY = row * fh + offY;
+    const srcH = fh - offY;
+
+    if (srcW <= 0 || srcH <= 0) return;
+
+    const scale = Math.min(maxSize / srcW, maxSize / srcH);
+    const dw = Math.round(srcW * scale);
+    const dh = Math.round(srcH * scale);
+    const dx = Math.round((canvas.width  - dw) / 2);
+    const dy = Math.round((canvas.height - dh) / 2);
+
+    ctx.drawImage(img, srcX, srcY, srcW, srcH, dx, dy, dw, dh);
+
+    if (document.getElementById('crosshair').checked) {
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,60,60,0.7)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy);  ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  initArrays();
+  updateFramePanel();
+  requestAnimationFrame(draw);
+</script>
+</body>
+</html>
