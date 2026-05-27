@@ -271,6 +271,7 @@
         let currentMelody = [130, 146, 164, 174, 196, 220, 246, 261];
         let musicTempo = 250;
         let musicActive = false;
+        let soundEnabled = true;
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -282,7 +283,7 @@
             canvas.focus();
         }
         function playTone(f, d, t = 'sine', v = 0.1) {
-            if (!audioCtx || audioCtx.state === 'suspended') return;
+            if (!soundEnabled || !audioCtx || audioCtx.state === 'suspended') return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
             g.gain.setValueAtTime(v, audioCtx.currentTime);
@@ -306,7 +307,7 @@
         function playRecord() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playTone(f, 0.4, 'sine', 0.1), i * 150)); }
         function playMilestone() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'sine', 0.08), i * 70)); }
         function playShot() {
-            if (!audioCtx) return;
+            if (!soundEnabled || !audioCtx) return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.type = 'square'; o.frequency.setValueAtTime(900, audioCtx.currentTime);
             o.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.14);
@@ -315,7 +316,7 @@
             playTone(90, 0.09, 'sawtooth', 0.18);
         }
         function playExplosion() {
-            if (!audioCtx) return;
+            if (!soundEnabled || !audioCtx) return;
             const o1 = audioCtx.createOscillator(), g1 = audioCtx.createGain();
             o1.type = 'sawtooth'; o1.frequency.setValueAtTime(160, audioCtx.currentTime);
             o1.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.45);
@@ -325,7 +326,7 @@
         function playBonus() { [523, 659, 784, 1047, 1318].forEach((f, i) => setTimeout(() => { playTone(f, 0.22, 'sine', 0.14); }, i * 80)); }
         function playAmmo() { playTone(1200, 0.06, 'square', 0.12); setTimeout(() => playTone(1600, 0.08, 'sine', 0.1), 60); setTimeout(() => playTone(2000, 0.1, 'sine', 0.08), 120); }
         function playSlowdown() {
-            if (!audioCtx) return;
+            if (!soundEnabled || !audioCtx) return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.type = 'sine'; o.frequency.setValueAtTime(900, audioCtx.currentTime);
             o.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.7);
@@ -990,18 +991,41 @@
                 popup.timer--;
             }
             if (isMobile) {
-                const bx = W - 84, by = H - 84, bw = 74, bh = 74;
+                const bcx = W - 72, bcy = H - 72;
+                const outerR = 62, midR = 36, innerR = 8, lineOuter = 82, lineInner = 42;
                 const active = touchRight && ammo > 0;
-                ctx.globalAlpha = ammo > 0 ? (active ? 0.95 : 0.7) : 0.3;
-                ctx.fillStyle = active ? 'rgba(255,107,53,0.9)' : 'rgba(0,0,0,0.5)';
-                ctx.strokeStyle = ammo > 0 ? '#ff6b35' : '#555';
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 18); ctx.fill(); ctx.stroke();
-                ctx.font = '32px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillStyle = '#fff'; ctx.shadowBlur = 0;
-                ctx.fillText('💥', bx + bw / 2, by + bh / 2 + 11);
-                ctx.globalAlpha = 1; ctx.lineWidth = 1;
+                ctx.save();
+                ctx.globalAlpha = ammo > 0 ? (active ? 0.95 : 0.68) : 0.28;
+                const col = active ? 'rgba(255,100,50,0.9)' : 'rgba(255,255,255,0.85)';
+                ctx.strokeStyle = col;
+                ctx.lineWidth = active ? 3 : 2.5;
+                ctx.beginPath(); ctx.arc(bcx, bcy, outerR, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(bcx, bcy, midR, 0, Math.PI * 2); ctx.stroke();
+                ctx.fillStyle = col;
+                ctx.beginPath(); ctx.arc(bcx, bcy, innerR, 0, Math.PI * 2); ctx.fill();
+                ctx.lineWidth = active ? 2.5 : 2;
+                [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dx, dy]) => {
+                    ctx.beginPath();
+                    ctx.moveTo(bcx + dx * lineInner, bcy + dy * lineInner);
+                    ctx.lineTo(bcx + dx * lineOuter, bcy + dy * lineOuter);
+                    ctx.stroke();
+                });
+                ctx.restore();
             }
+        }
+        const SOUND_BTN = { x: W - 32, y: 32, r: 22 };
+        function drawSoundBtn() {
+            const { x, y, r } = SOUND_BTN;
+            ctx.save();
+            ctx.globalAlpha = 0.75;
+            ctx.fillStyle = soundEnabled ? 'rgba(0,0,0,0.45)' : 'rgba(200,30,30,0.55)';
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.font = '18px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillStyle = '#fff'; ctx.globalAlpha = soundEnabled ? 0.9 : 0.6;
+            ctx.fillText(soundEnabled ? '🔊' : '🔇', x, y + 6);
+            ctx.restore();
         }
         function drawStars(stars, scrollDir) {
             stars.forEach(s => {
@@ -1095,7 +1119,8 @@
             if (gameMode === 'menu' || gameMode === 'levelSelect' || gameMode === 'levelIntro' || gameMode === 'cutscene' || gameMode === 'gameOver' || gameMode === 'levelComplete') {
                 handleClick(cx, cy); return;
             }
-            const onShootBtn = isMobile && cx > W - 90 && cy > H - 90;
+            const sdx2 = cx - (W - 72), sdy2 = cy - (H - 72);
+            const onShootBtn = isMobile && sdx2 * sdx2 + sdy2 * sdy2 < 72 * 72;
             if (onShootBtn) { touchRight = true; }
             else { touchPos = { x: cx, y: cy }; if (cx > W * 0.7) touchRight = true; else touchLeft = true; }
         }, { passive: false });
@@ -1561,6 +1586,13 @@
         }
 
         function handleClick(cx, cy) {
+            const sdx = cx - SOUND_BTN.x, sdy = cy - SOUND_BTN.y;
+            if (sdx * sdx + sdy * sdy < SOUND_BTN.r * SOUND_BTN.r) {
+                soundEnabled = !soundEnabled;
+                if (soundEnabled) { initAudio(); setMusicActive(true); }
+                else setMusicActive(false);
+                return;
+            }
             if (gameMode === 'menu') {
                 const lvls = [{ id: 1, col: 0, row: 0 }, { id: 2, col: 1, row: 0 }, { id: 3, col: 0, row: 1 }, { id: 4, col: 1, row: 1 }];
                 for (const lv of lvls) {
@@ -1998,7 +2030,7 @@
 
             // Input — identiek aan RocketManFlight
             if (touchPos) {
-                const dx = touchPos.x - (rocket.x + 25), dy = touchPos.y - (rocket.y + 25);
+                const dx = touchPos.x - (rocket.x + 2), dy = touchPos.y - (rocket.y + 16);
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist > 6) {
                     const spd = Math.min(SPEED, dist);
@@ -3027,6 +3059,7 @@
                 drawLoading();
             } else if (gameMode === 'menu') {
                 drawMainMenu();
+                drawSoundBtn();
             } else if (gameMode === 'playing' || gameMode === 'dying' || gameMode === 'levelComplete') {
                 // Update
                 if (gameMode === 'playing') {
