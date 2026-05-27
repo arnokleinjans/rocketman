@@ -279,8 +279,9 @@
                 const src = audioCtx.createBufferSource();
                 src.buffer = buf; src.connect(audioCtx.destination); src.start(0);
             }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
             canvas.focus();
+            if (audioCtx.state === 'suspended') return audioCtx.resume();
+            return Promise.resolve();
         }
         function playTone(f, d, t = 'sine', v = 0.1) {
             if (!soundEnabled || !audioCtx || audioCtx.state === 'suspended') return;
@@ -991,19 +992,29 @@
                 popup.timer--;
             }
             if (isMobile) {
+                // Touchpad zone links
+                ctx.save();
+                ctx.globalAlpha = padLast ? 0.18 : 0.08;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.roundRect(8, H * 0.38, PAD_MAX_X - 16, H * 0.58, 16); ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.restore();
+
+                // Crosshair vizier rechts
                 const bcx = W - 72, bcy = H - 72;
-                const outerR = 62, midR = 36, innerR = 8, lineOuter = 82, lineInner = 42;
+                const outerR = 48, midR = 27, innerR = 6, lineOuter = 64, lineInner = 32;
                 const active = touchRight && ammo > 0;
                 ctx.save();
-                ctx.globalAlpha = ammo > 0 ? (active ? 0.95 : 0.68) : 0.28;
+                ctx.globalAlpha = ammo > 0 ? (active ? 0.95 : 0.65) : 0.25;
                 const col = active ? 'rgba(255,100,50,0.9)' : 'rgba(255,255,255,0.85)';
                 ctx.strokeStyle = col;
-                ctx.lineWidth = active ? 3 : 2.5;
+                ctx.lineWidth = active ? 2.5 : 2;
                 ctx.beginPath(); ctx.arc(bcx, bcy, outerR, 0, Math.PI * 2); ctx.stroke();
                 ctx.beginPath(); ctx.arc(bcx, bcy, midR, 0, Math.PI * 2); ctx.stroke();
                 ctx.fillStyle = col;
                 ctx.beginPath(); ctx.arc(bcx, bcy, innerR, 0, Math.PI * 2); ctx.fill();
-                ctx.lineWidth = active ? 2.5 : 2;
                 [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dx, dy]) => {
                     ctx.beginPath();
                     ctx.moveTo(bcx + dx * lineInner, bcy + dy * lineInner);
@@ -1059,6 +1070,8 @@
         // ── Input ──────────────────────────────────────────────────
         const keys = {};
         let touchPos = null, touchRight = false, touchLeft = false;
+        let padLast = null, padDelta = { x: 0, y: 0 };
+        const PAD_MAX_X = W * 0.60;
         let menuHoverCard = 0, menuHoverBtn = false, introHoverBtn = false, introHoverMenu = false;
         let goHoverRetry = false, goHoverMenu = false;
         canvas.addEventListener('mousemove', e => {
@@ -1120,19 +1133,31 @@
                 handleClick(cx, cy); return;
             }
             const sdx2 = cx - (W - 72), sdy2 = cy - (H - 72);
-            const onShootBtn = isMobile && sdx2 * sdx2 + sdy2 * sdy2 < 72 * 72;
+            const onShootBtn = sdx2 * sdx2 + sdy2 * sdy2 < 55 * 55;
             if (onShootBtn) { touchRight = true; }
-            else { touchPos = { x: cx, y: cy }; if (cx > W * 0.7) touchRight = true; else touchLeft = true; }
+            else if (cx < PAD_MAX_X) { padLast = { x: cx, y: cy }; touchLeft = true; }
+            else { touchLeft = true; }
         }, { passive: false });
         canvas.addEventListener('touchmove', e => {
             e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const t = e.changedTouches[0];
-            touchPos = { x: (t.clientX - rect.left) * (W / rect.width), y: (t.clientY - rect.top) * (H / rect.height) };
+            const cx = (t.clientX - rect.left) * (W / rect.width);
+            const cy = (t.clientY - rect.top) * (H / rect.height);
+            if (padLast) {
+                padDelta.x += cx - padLast.x;
+                padDelta.y += cy - padLast.y;
+                padLast = { x: cx, y: cy };
+            } else {
+                touchPos = { x: cx, y: cy };
+            }
         }, { passive: false });
         canvas.addEventListener('touchend', e => {
             e.preventDefault();
-            if (!e.touches.length) { touchPos = null; touchRight = false; touchLeft = false; }
+            if (!e.touches.length) {
+                touchPos = null; touchRight = false; touchLeft = false;
+                padLast = null; padDelta.x = 0; padDelta.y = 0;
+            }
         }, { passive: false });
 
         // ── Game state machine ─────────────────────────────────────
@@ -1589,7 +1614,7 @@
             const sdx = cx - SOUND_BTN.x, sdy = cy - SOUND_BTN.y;
             if (sdx * sdx + sdy * sdy < SOUND_BTN.r * SOUND_BTN.r) {
                 soundEnabled = !soundEnabled;
-                if (soundEnabled) { initAudio(); setMusicActive(true); }
+                if (soundEnabled) initAudio().then(() => setMusicActive(true));
                 else setMusicActive(false);
                 return;
             }
@@ -2028,8 +2053,15 @@
                 }
             }
 
-            // Input — identiek aan RocketManFlight
-            if (touchPos) {
+            // Input — touchpad (mobiel) of pijltjes/muis (desktop)
+            if (isMobile) {
+                if (padDelta.x !== 0 || padDelta.y !== 0) {
+                    rocket.x = Math.max(0, Math.min(W - 50, rocket.x + padDelta.x));
+                    rocket.y = Math.max(0, Math.min(H - 80, rocket.y + padDelta.y));
+                    rocket.angle = Math.max(-15, Math.min(15, padDelta.x * 0.6));
+                    padDelta.x = 0; padDelta.y = 0;
+                } else { rocket.angle *= 0.85; }
+            } else if (touchPos) {
                 const dx = touchPos.x - (rocket.x + 2), dy = touchPos.y - (rocket.y + 16);
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist > 6) {
@@ -2736,7 +2768,14 @@
             lvlElapsed++;
 
             // Input — Vrije besturing
-            if (touchPos) {
+            if (isMobile) {
+                if (padDelta.x !== 0 || padDelta.y !== 0) {
+                    rocket.x = Math.max(0, Math.min(W - 50, rocket.x + padDelta.x));
+                    rocket.y = Math.max(0, Math.min(H - 80, rocket.y + padDelta.y));
+                    rocket.angle = Math.max(-15, Math.min(15, padDelta.x * 0.6));
+                    padDelta.x = 0; padDelta.y = 0;
+                } else { rocket.angle *= 0.85; }
+            } else if (touchPos) {
                 const dx = touchPos.x - (rocket.x + 25), dy = touchPos.y - (rocket.y + 25);
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist > 6) {
