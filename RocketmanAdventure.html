@@ -1052,7 +1052,7 @@
         const keys = {};
         let touchPos = null, touchRight = false, touchLeft = false;
         let padLast = null, padDelta = { x: 0, y: 0 };
-        let shootTouchId = null, padTouchId = null;
+        let padTouchId = null;
         let menuHoverCard = 0, menuHoverBtn = false, introHoverBtn = false, introHoverMenu = false;
         let goHoverRetry = false, goHoverMenu = false;
         canvas.addEventListener('mousemove', e => {
@@ -1105,6 +1105,16 @@
             if (cx < W / 2) touchLeft = true; else touchRight = true;
         });
         canvas.addEventListener('mouseup', () => { touchLeft = false; touchRight = false; });
+        function syncTouchState(e, rect) {
+            touchRight = false; touchLeft = false;
+            for (const t of e.touches) {
+                const cx = (t.clientX - rect.left) * (W / rect.width);
+                const cy = (t.clientY - rect.top) * (H / rect.height);
+                const sdx = cx - SHOOT_BTN.x, sdy = cy - SHOOT_BTN.y;
+                if (sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r) touchRight = true;
+                else touchLeft = true;
+            }
+        }
         canvas.addEventListener('touchstart', e => {
             e.preventDefault(); initAudio();
             const rect = canvas.getBoundingClientRect();
@@ -1114,12 +1124,12 @@
                     handleClick(cx, cy); break;
                 }
                 const sdx = cx - SHOOT_BTN.x, sdy = cy - SHOOT_BTN.y;
-                if (sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r) {
-                    touchRight = true; shootTouchId = t.identifier;
-                } else {
-                    padLast = { x: cx, y: cy }; touchLeft = true; padTouchId = t.identifier;
+                const onShoot = sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r;
+                if (!onShoot && padTouchId === null) {
+                    padLast = { x: cx, y: cy }; padTouchId = t.identifier;
                 }
             }
+            syncTouchState(e, rect);
         }, { passive: false });
         canvas.addEventListener('touchmove', e => {
             e.preventDefault();
@@ -1133,19 +1143,20 @@
                     padLast = { x: cx, y: cy };
                 }
             }
+            syncTouchState(e, rect);
         }, { passive: false });
         canvas.addEventListener('touchend', e => {
             e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
             for (const t of e.changedTouches) {
-                if (t.identifier === shootTouchId) { touchRight = false; shootTouchId = null; }
                 if (t.identifier === padTouchId) {
-                    padLast = null; padDelta.x = 0; padDelta.y = 0; touchLeft = false; padTouchId = null;
+                    padLast = null; padDelta.x = 0; padDelta.y = 0; padTouchId = null;
                 }
             }
+            syncTouchState(e, rect);
             if (!e.touches.length) {
                 touchPos = null; touchRight = false; touchLeft = false;
-                padLast = null; padDelta.x = 0; padDelta.y = 0;
-                shootTouchId = null; padTouchId = null;
+                padLast = null; padDelta.x = 0; padDelta.y = 0; padTouchId = null;
             }
         }, { passive: false });
 
