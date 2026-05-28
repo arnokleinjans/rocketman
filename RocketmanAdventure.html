@@ -957,11 +957,23 @@
                     }
                 }
             }
-            const hasAmmo = ammo > 0;
-            ctx.fillStyle = hasAmmo ? 'rgba(0,0,0,0.42)' : 'rgba(0,0,0,0.25)';
-            ctx.beginPath(); ctx.roundRect(10, H - 56, 94, 42, 14); ctx.fill();
-            ctx.fillStyle = hasAmmo ? '#FFD700' : 'rgba(255,215,0,0.3)';
-            ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'left'; ctx.fillText('🔫×' + ammo, 20, H - 26);
+            {
+                const bcx = SHOOT_BTN.x, bcy = SHOOT_BTN.y;
+                const hasAmmo = ammo > 0;
+                const active = touchRight && hasAmmo;
+                const col = active ? 'rgba(255,100,50,0.95)' : (hasAmmo ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.25)');
+                ctx.save();
+                ctx.strokeStyle = col; ctx.lineWidth = active ? 2.5 : 2;
+                ctx.beginPath(); ctx.arc(bcx, bcy, 42, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(bcx, bcy, 24, 0, Math.PI * 2); ctx.stroke();
+                [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy]) => {
+                    ctx.beginPath(); ctx.moveTo(bcx+dx*29,bcy+dy*29); ctx.lineTo(bcx+dx*56,bcy+dy*56); ctx.stroke();
+                });
+                ctx.fillStyle = active ? 'rgba(255,100,50,0.95)' : (hasAmmo ? '#FFD700' : 'rgba(255,215,0,0.25)');
+                ctx.font = 'bold 17px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(ammo, bcx, bcy + 6);
+                ctx.restore();
+            }
             if (invul > 0) {
                 const prog = invul / 480, hue = prog > 0.5 ? 140 : prog > 0.25 ? 55 : 0;
                 ctx.fillStyle = 'rgba(0,0,0,0.42)';
@@ -991,40 +1003,9 @@
                 ctx.restore(); ctx.globalAlpha = 1;
                 popup.timer--;
             }
-            if (isMobile) {
-                // Touchpad zone links
-                ctx.save();
-                ctx.globalAlpha = padLast ? 0.18 : 0.08;
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.roundRect(8, H * 0.38, PAD_MAX_X - 16, H * 0.58, 16); ctx.fill();
-                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.restore();
-
-                // Crosshair vizier rechts
-                const bcx = W - 72, bcy = H - 72;
-                const outerR = 48, midR = 27, innerR = 6, lineOuter = 64, lineInner = 32;
-                const active = touchRight && ammo > 0;
-                ctx.save();
-                ctx.globalAlpha = ammo > 0 ? (active ? 0.95 : 0.65) : 0.25;
-                const col = active ? 'rgba(255,100,50,0.9)' : 'rgba(255,255,255,0.85)';
-                ctx.strokeStyle = col;
-                ctx.lineWidth = active ? 2.5 : 2;
-                ctx.beginPath(); ctx.arc(bcx, bcy, outerR, 0, Math.PI * 2); ctx.stroke();
-                ctx.beginPath(); ctx.arc(bcx, bcy, midR, 0, Math.PI * 2); ctx.stroke();
-                ctx.fillStyle = col;
-                ctx.beginPath(); ctx.arc(bcx, bcy, innerR, 0, Math.PI * 2); ctx.fill();
-                [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dx, dy]) => {
-                    ctx.beginPath();
-                    ctx.moveTo(bcx + dx * lineInner, bcy + dy * lineInner);
-                    ctx.lineTo(bcx + dx * lineOuter, bcy + dy * lineOuter);
-                    ctx.stroke();
-                });
-                ctx.restore();
-            }
         }
         const SOUND_BTN = { x: W - 32, y: 32, r: 22 };
+        const SHOOT_BTN = { x: 55, y: H - 55, r: 48 };
         function drawSoundBtn() {
             const { x, y, r } = SOUND_BTN;
             ctx.save();
@@ -1071,6 +1052,7 @@
         const keys = {};
         let touchPos = null, touchRight = false, touchLeft = false;
         let padLast = null, padDelta = { x: 0, y: 0 };
+        let shootTouchId = null, padTouchId = null;
         const PAD_MAX_X = W * 0.60;
         let menuHoverCard = 0, menuHoverBtn = false, introHoverBtn = false, introHoverMenu = false;
         let goHoverRetry = false, goHoverMenu = false;
@@ -1127,36 +1109,46 @@
         canvas.addEventListener('touchstart', e => {
             e.preventDefault(); initAudio();
             const rect = canvas.getBoundingClientRect();
-            const t = e.changedTouches[0];
-            const cx = (t.clientX - rect.left) * (W / rect.width), cy = (t.clientY - rect.top) * (H / rect.height);
-            if (gameMode === 'menu' || gameMode === 'levelSelect' || gameMode === 'levelIntro' || gameMode === 'cutscene' || gameMode === 'gameOver' || gameMode === 'levelComplete') {
-                handleClick(cx, cy); return;
+            for (const t of e.changedTouches) {
+                const cx = (t.clientX - rect.left) * (W / rect.width), cy = (t.clientY - rect.top) * (H / rect.height);
+                if (gameMode === 'menu' || gameMode === 'levelSelect' || gameMode === 'levelIntro' || gameMode === 'cutscene' || gameMode === 'gameOver' || gameMode === 'levelComplete') {
+                    handleClick(cx, cy); break;
+                }
+                const sdx = cx - SHOOT_BTN.x, sdy = cy - SHOOT_BTN.y;
+                if (sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r) {
+                    touchRight = true; shootTouchId = t.identifier;
+                } else if (cx < PAD_MAX_X) {
+                    padLast = { x: cx, y: cy }; touchLeft = true; padTouchId = t.identifier;
+                } else {
+                    touchLeft = true;
+                }
             }
-            const sdx2 = cx - (W - 72), sdy2 = cy - (H - 72);
-            const onShootBtn = sdx2 * sdx2 + sdy2 * sdy2 < 55 * 55;
-            if (onShootBtn) { touchRight = true; }
-            else if (cx < PAD_MAX_X) { padLast = { x: cx, y: cy }; touchLeft = true; }
-            else { touchLeft = true; }
         }, { passive: false });
         canvas.addEventListener('touchmove', e => {
             e.preventDefault();
             const rect = canvas.getBoundingClientRect();
-            const t = e.changedTouches[0];
-            const cx = (t.clientX - rect.left) * (W / rect.width);
-            const cy = (t.clientY - rect.top) * (H / rect.height);
-            if (padLast) {
-                padDelta.x += cx - padLast.x;
-                padDelta.y += cy - padLast.y;
-                padLast = { x: cx, y: cy };
-            } else {
-                touchPos = { x: cx, y: cy };
+            for (const t of e.changedTouches) {
+                if (t.identifier === padTouchId && padLast) {
+                    const cx = (t.clientX - rect.left) * (W / rect.width);
+                    const cy = (t.clientY - rect.top) * (H / rect.height);
+                    padDelta.x += cx - padLast.x;
+                    padDelta.y += cy - padLast.y;
+                    padLast = { x: cx, y: cy };
+                }
             }
         }, { passive: false });
         canvas.addEventListener('touchend', e => {
             e.preventDefault();
+            for (const t of e.changedTouches) {
+                if (t.identifier === shootTouchId) { touchRight = false; shootTouchId = null; }
+                if (t.identifier === padTouchId) {
+                    padLast = null; padDelta.x = 0; padDelta.y = 0; touchLeft = false; padTouchId = null;
+                }
+            }
             if (!e.touches.length) {
                 touchPos = null; touchRight = false; touchLeft = false;
                 padLast = null; padDelta.x = 0; padDelta.y = 0;
+                shootTouchId = null; padTouchId = null;
             }
         }, { passive: false });
 
