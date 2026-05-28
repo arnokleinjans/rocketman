@@ -36,7 +36,7 @@
         }
 
         @media (pointer: coarse) {
-            canvas {
+            canvas#c {
                 border-radius: 0;
                 box-shadow: none;
                 width: 100vw;
@@ -1005,7 +1005,7 @@
             }
         }
         const SOUND_BTN = { x: W - 32, y: 32, r: 22 };
-        const SHOOT_BTN = { x: 55, y: H - 55, r: 58 };
+        const SHOOT_BTN = { x: 55, y: H - 100, r: 58 };
         function drawSoundBtn() {
             const { x, y, r } = SOUND_BTN;
             ctx.save();
