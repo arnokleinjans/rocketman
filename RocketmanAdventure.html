@@ -1005,7 +1005,7 @@
             }
         }
         const SOUND_BTN = { x: W - 32, y: 32, r: 22 };
-        const SHOOT_BTN = { x: 55, y: H - 55, r: 48 };
+        const SHOOT_BTN = { x: 55, y: H - 55, r: 58 };
         function drawSoundBtn() {
             const { x, y, r } = SOUND_BTN;
             ctx.save();
@@ -1053,7 +1053,6 @@
         let touchPos = null, touchRight = false, touchLeft = false;
         let padLast = null, padDelta = { x: 0, y: 0 };
         let shootTouchId = null, padTouchId = null;
-        const PAD_MAX_X = W * 0.60;
         let menuHoverCard = 0, menuHoverBtn = false, introHoverBtn = false, introHoverMenu = false;
         let goHoverRetry = false, goHoverMenu = false;
         canvas.addEventListener('mousemove', e => {
@@ -1117,10 +1116,8 @@
                 const sdx = cx - SHOOT_BTN.x, sdy = cy - SHOOT_BTN.y;
                 if (sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r) {
                     touchRight = true; shootTouchId = t.identifier;
-                } else if (cx < PAD_MAX_X) {
-                    padLast = { x: cx, y: cy }; touchLeft = true; padTouchId = t.identifier;
                 } else {
-                    touchLeft = true;
+                    padLast = { x: cx, y: cy }; touchLeft = true; padTouchId = t.identifier;
                 }
             }
         }, { passive: false });
