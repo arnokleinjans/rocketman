@@ -279,6 +279,7 @@
                 'les.4': 'Munten zijn er alleen rond het zwarte gat. Pak ze alle vijf, dan sluit het gat.',
                 'les.5': 'Bij elk volgend gat draaien de munten dichter bij de rand. Balanceren!',
                 'les.diamant': 'Zie je die diamant? Die verdubbelt je hele score!',
+                'les.stil': 'Stilstaan helpt niet! Hoe langer je op één plek blijft, hoe harder hij trekt.',
                 'les.goed': 'Goed zo! Jij balanceert als een echte Rocketman.',
                 'les.wie': 'Rocketman',
                 'pop.opgeslokt': 'OPGESLOKT!',
@@ -388,6 +389,7 @@
                 'les.4': 'Coins only orbit the black hole. Grab all five and the hole closes.',
                 'les.5': 'Each next hole, the coins orbit closer to the edge. Balance!',
                 'les.diamant': 'See that diamond? It doubles your whole score!',
+                'les.stil': 'Standing still won\'t help! The longer you stay in one spot, the harder it pulls.',
                 'les.goed': 'Well done! You balance like a real Rocketman.',
                 'les.wie': 'Rocketman',
                 'pop.opgeslokt': 'SWALLOWED!',
@@ -4225,6 +4227,21 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         const GAT_R_MIN = 46, GAT_R_SPREIDING = 16, GAT_TREK = 9.5, GAT_ZONE = 3.5;
         const GAT_RING = Math.pow(GAT_TREK / 7, 2 / 3);
         const BAAN_START = 2.4, BAAN_STAP = 0.16, BAAN_MIN = 1.0, MUNTEN_PER_GAT = 5, DOEL5 = 100, DIAMANT_ELK = 3;
+        // Stilstaan: blijft de raket binnen STIL_STRAAL van een ankerpunt, dan loopt de trek op na STIL_WACHT beelden,
+        // in STIL_OPBOUW beelden tot factor 1, maximaal STIL_MAX. Trek ×(1 + factor) plus STIL_EXTRA × factor, ook aan de rand.
+        // Alleen zelf wegsturen (muis/vinger verschuiven of pijltje, en de raket gaat echt van zijn plek) zet de factor terug op 0.
+        // Weggetrokken worden of heen en weer wiebelen binnen de cirkel niet.
+        const STIL_STRAAL = 40, STIL_WACHT = 60, STIL_OPBOUW = 240, STIL_MAX = 1.5, STIL_EXTRA = 2.5;
+        let stil5 = 0, anker5 = null, stilK5 = 0, wil5 = 0, vorigeTP5 = null;
+        // Hoeveel de speler zelf wil bewegen dit beeld: vinger op het pad, muis verschuiven of een pijltje ingedrukt
+        function stuurWil5(SPEED) {
+            let w = 0;
+            if (isMobile) w = Math.hypot(padDelta.x, padDelta.y);
+            else if (touchPos) w = vorigeTP5 ? Math.hypot(touchPos.x - vorigeTP5.x, touchPos.y - vorigeTP5.y) : 0;
+            else if (keys['ArrowLeft'] || keys['ArrowRight'] || keys['ArrowUp'] || keys['ArrowDown']) w = SPEED;
+            vorigeTP5 = touchPos ? { x: touchPos.x, y: touchPos.y } : null;
+            return w;
+        }
         function initLevel5() {
             rocket = { x: W / 2 - 20, y: H - 160, vx: 0, vy: 0, angle: 0, invul: 0, angleDisplay: 0 };
             stars1 = makeStars(60);
@@ -4238,6 +4255,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             lvlTimeout = 0;
             lvlSpeed = 0; effSpeed = 0;
             gaten5 = []; gatTimer5 = 60; gatNr5 = 0; slok5 = null;
+            stil5 = 0; anker5 = null; stilK5 = 0; wil5 = 0; vorigeTP5 = null;
             les5 = { gehad: {}, rij: [], tekst: '', timer: 0 };
         }
         function geefLes(k) {
@@ -4281,7 +4299,9 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 return;
             }
 
+            wil5 += (stuurWil5(SPEED) - wil5) * 0.15;
             stuurVerticaal(SPEED);
+            stilK5 = Math.max(0, Math.min(STIL_MAX, (stil5 - STIL_WACHT) / STIL_OPBOUW));
 
             const rp = { x: rocket.x + 25, y: rocket.y + 25 };
             let trek = 0;
@@ -4289,8 +4309,9 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 if (g.sluit) g.r *= 0.93;
                 else if (g.y < g.parkY) g.y = Math.min(g.parkY, g.y + 2.2);
                 const dx = g.x - rp.x, dy = g.y - rp.y, d = Math.hypot(dx, dy) || 1, trekR = g.r * GAT_ZONE;
-                if (d < trekR) {
-                    const f = GAT_TREK * Math.pow(g.r / Math.max(d, g.r * 0.3), 1.5) * Math.min(1, (trekR - d) / g.r);
+                if (d < trekR * 1.15) {
+                    const basis = d < trekR ? GAT_TREK * Math.pow(g.r / Math.max(d, g.r * 0.3), 1.5) * Math.min(1, (trekR - d) / g.r) : 0;
+                    const f = basis * (1 + stilK5) + STIL_EXTRA * stilK5;
                     rocket.x += dx / d * f; rocket.y += dy / d * f;
                     trek = Math.max(trek, f);
                     if (d < g.r * GAT_RING * 1.4) geefLes('3');
@@ -4302,6 +4323,13 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             rocket.x = Math.max(0, Math.min(W - 50, rocket.x));
             rocket.y = Math.max(0, Math.min(H - 80, rocket.y));
             if (trek > 2.5) geefLes('2');
+            const mp = { x: rocket.x + 25, y: rocket.y + 25 };
+            if (!anker5) anker5 = mp;
+            if (Math.hypot(mp.x - anker5.x, mp.y - anker5.y) > STIL_STRAAL) {
+                if (wil5 >= 1.5) stil5 = 0;
+                anker5 = mp;
+            } else stil5++;
+            if (stilK5 > 0.3 && gaten5.some(g => !g.sluit)) geefLes('stil');
 
             handleShield();
             rocket.angleDisplay += (rocket.angle - rocket.angleDisplay) * (isMobile ? 0.14 : 0.12);
@@ -4351,7 +4379,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         function tekenGat5(g, t) {
             const trekR = g.r * GAT_ZONE, ringR = g.r * GAT_RING;
             const z = ctx.createRadialGradient(g.x, g.y, g.r, g.x, g.y, trekR);
-            z.addColorStop(0, 'rgba(150,60,255,0.16)'); z.addColorStop(1, 'rgba(150,60,255,0)');
+            z.addColorStop(0, `rgba(${150 + 80 * Math.min(1, stilK5)},60,255,${0.16 + 0.14 * Math.min(1, stilK5)})`); z.addColorStop(1, 'rgba(150,60,255,0)');
             ctx.fillStyle = z; ctx.beginPath(); ctx.arc(g.x, g.y, trekR, 0, Math.PI * 2); ctx.fill();
             ITEMS.drawItem(ctx, 'black', g.x, g.y, g.r * 2, t, g.seed);
             tekenRand5(g.x, g.y, ringR, t, g.seed);
@@ -5382,7 +5410,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 `lvlSpeed ${lvlSpeed.toFixed(2)}  effSpeed ${effSpeed.toFixed(2)}`,
                 `klokrem ${clockBrake.toFixed(2)}  lvlElapsed ${lvlElapsed}`,
                 `muziek ${musicIntervalTempo} ms  timers ${dbg.timers}  noten/s ${nps}`,
-                `kometen ${comets.filter(c => !c.dead).length}  score ${score + coinScore}`
+                `kometen ${comets.filter(c => !c.dead).length}  score ${score + coinScore}` + (currentLevelId === 5 ? `  stil ${stilK5.toFixed(2)}` : '')
             ];
             if (gameMode === 'playing' || gameMode === 'dying') {
                 ctx.save(); ctx.lineWidth = 1;
