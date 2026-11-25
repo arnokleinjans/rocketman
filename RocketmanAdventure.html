@@ -2976,6 +2976,15 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         // Botsen op wat je ziet: de romp van de raket (cirkels uit GFX.botsCirkels) tegen een cirkel of strook, met 2 px speling
         const SPELING = 2;
         function raketCirkels() { const p = raketPose(); return GFX.botsCirkels(p.x, p.y, p.h, p.a, !!p.zij); }
+        // Pakzone voor munten: een staaf langs de lengteas met overal dezelfde breedte (vinnen inbegrepen).
+        // De punt van de raket pakt daardoor niet verder dan de zijkant
+        const PAK_BREEDTE = 16, PAK_VOOR = 31, PAK_ACHTER = -40;
+        function raketPakt(cx, cy, r) {
+            const p = raketPose(), s = p.h / 100, a = p.a * Math.PI / 180;
+            const ux = Math.sin(a), uy = -Math.cos(a);
+            const t = Math.max(PAK_ACHTER * s, Math.min(PAK_VOOR * s, (cx - p.x) * ux + (cy - p.y) * uy));
+            return Math.hypot(cx - (p.x + ux * t), cy - (p.y + uy * t)) < PAK_BREEDTE * s + r;
+        }
         function raketRaakt(cx, cy, r) {
             return raketCirkels().some(c => Math.hypot(c.x - cx, c.y - cy) < c.r + r - SPELING);
         }
@@ -4303,7 +4312,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 if (c.dead || !c.gat) return;
                 c.hoek += 0.022;
                 c.x = c.gat.x + Math.cos(c.hoek) * c.baan - 18; c.y = c.gat.y + Math.sin(c.hoek) * c.baan - 18;
-                if (raketRaakt(c.x + 18, c.y + 18, 15)) {
+                if (raketPakt(c.x + 18, c.y + 18, 15)) {
                     collectCoin(c);
                     if (c.type === 'gold') { coinScore += 5; popup = { text: '+10', timer: 50, color: '#ff9ad5' }; }
                 }
@@ -5364,6 +5373,12 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 if (currentLevelId === 1) birds.forEach(b => cirkel(b.x + 15, b.y + 16, 15, '#ff5050'));
                 coins.forEach(c => { if (!c.dead && c.type === 'red') cirkel(c.x + 18, c.y + 18, 16, '#ff5050'); });
                 if (currentLevelId === 3) rings.forEach(rg => { if (rg.x < -80 || rg.x > W + 80) return; rg.topRocks.concat(rg.botRocks).forEach(k => { if (!steenVerstopt(rg, k)) cirkel(rg.x + 19 + k.dx, k.y, k.size * 0.62, '#ff9050'); }); });
+                if (currentLevelId === 5) {
+                    const p = raketPose(), s = p.h / 100, a = p.a * Math.PI / 180, ux = Math.sin(a), uy = -Math.cos(a);
+                    ctx.strokeStyle = '#ffe060'; ctx.lineWidth = PAK_BREEDTE * s * 2; ctx.globalAlpha = 0.25; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(p.x + ux * PAK_ACHTER * s, p.y + uy * PAK_ACHTER * s); ctx.lineTo(p.x + ux * PAK_VOOR * s, p.y + uy * PAK_VOOR * s); ctx.stroke();
+                    ctx.globalAlpha = 1; ctx.lineWidth = 1;
+                }
                 if (currentLevelId === 5) gaten5.forEach(g => { cirkel(g.x, g.y, g.r * 0.42, '#ff5050'); cirkel(g.x, g.y, g.r * GAT_RING, '#ffb050'); cirkel(g.x, g.y, g.r * GAT_ZONE, '#b080ff'); cirkel(g.x, g.y, g.baan, '#ffe060'); });
                 if (currentLevelId === 4 && laserPhase === 'fire') { const l = lasers[laserIdx]; ctx.strokeStyle = '#ff5050'; ctx.strokeRect(l.x - 10, 0, 20, H); }
                 ctx.restore();

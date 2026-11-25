@@ -162,7 +162,7 @@ De moeilijkheid is de afstand van de baan tot de rode ring, niet de snelheid. Ee
 
 Per gat met straal `r` (`GAT_R_MIN` 46 + tot `GAT_R_SPREIDING` 16): trekzone `GAT_ZONE`·r (3,5), trek `GAT_TREK` (9,5) op afstand r, rode stippelring op `GAT_RING`·r waar de trek gelijk is aan de vliegsnelheid 7. Kern 0,42·r slokt de raket op (`slok5`, 40 beelden draaien en krimpen, dan `triggerDeath`). Doel `DOEL5` = 100 (twee gaten), bekers 150/300/500.
 
-Rocketman geeft lessen in een spreekballon (`geefLes`, teksten `les.1-5`, `les.diamant`, `les.goed`). Linksboven staat "Gat n • gepakt/5". Debugscherm (D) toont kern, ring, trekzone en baan.
+Rocketman geeft lessen in een spreekballon (`geefLes`, teksten `les.1-5`, `les.diamant`, `les.goed`). Linksboven staat "Gat n • gepakt/5". Munten pakken gaat met `raketPakt()`: een staaf langs de lengteas met overal dezelfde breedte (`PAK_BREEDTE`, `PAK_VOOR`, `PAK_ACHTER`), zodat de punt niet verder pakt dan de zijkant en de vinnen meetellen. Botsen met de kern gebruikt nog `raketRaakt()` (de romp). Debugscherm (D) toont kern, ring, trekzone, baan en de pakzone (geel).
 
 In het menu van hoofdstuk 2 staat geen familierij, alleen Rocketman naast zijn raket.
 
