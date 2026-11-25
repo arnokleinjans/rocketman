@@ -118,7 +118,7 @@ Score-drempelwaarden per level (`medailles` in `LEVELS`):
 - Level 2: brons=150, zilver=375, goud=750
 - Level 3: brons=200, zilver=500, goud=1000
 - Level 4: brons=300, zilver=750, goud=1500
-- Level 5: brons=100, zilver=250, goud=500
+- Level 5: brons=150, zilver=300, goud=500
 
 Cups worden getoond op de level-kaart (top-rechts, 80×80) en in de naam-invoer overlay.
 Functie: `getCupKey(lid, score)` → `'cup_bronze'` / `'cup_silver'` / `'cup_gold'` / `null`
@@ -156,7 +156,13 @@ Elk level heeft `hoofdstuk` (1 of 2). Het menu toont één hoofdstuk tegelijk, v
 - `schieten: false`: geen schietknop en geen schiet-aanraakvlak.
 
 ### Level 5: Vliegles Meisje
-Verticaal zoals level 1 (`stuurVerticaal()` is de gedeelde besturing). Zwarte gaten (`gaten5`) drijven omlaag, maximaal 2 tegelijk. Per gat met straal `r`: trekzone `GAT_ZONE`·r, trek `GAT_TREK` op afstand r, rode stippelring op `GAT_RING`·r, waar de trek gelijk is aan de vliegsnelheid 7 (daarbinnen trekt het gat harder dan de raket vliegt), kern 0,42·r slokt de raket op (`slok5`, 40 beelden draaien en krimpen, dan `triggerDeath`). Vijf gouden munten draaien in een baan om elk gat, +10 per munt. Rocketman geeft lessen in een spreekballon (`geefLes`, teksten `les.1-4` en `les.goed`). Debugscherm (D) toont kern, ring en trekzone. Moeilijkheid staat in de constanten `GAT_R_MIN`, `GAT_R_SPREIDING`, `GAT_R_GROEI`, `GAT_TREK`, `GAT_ZONE`, `GAT_MAX` bij de start van level 5 (nu 46, 16, 12, 9,5, 3,5, 2).
+Verticaal zoals level 1 (`stuurVerticaal()` is de gedeelde besturing). Steeds één zwart gat (`gaten5`). Het zakt het scherm in, blijft hangen op `parkY` en sluit pas als alle munten in zijn baan gepakt zijn; daarna komt het volgende (`gatNr5` telt). Er zijn geen losse munten: alleen 5 munten in een baan rond het gat, +10 per munt. Bij elk derde gat (`DIAMANT_ELK`) is één munt een diamant die de score verdubbelt.
+
+De moeilijkheid is de afstand van de baan tot de rode ring, niet de snelheid. Eerste gat `BAAN_START`·ring (2,4), elk volgend gat `BAAN_STAP` (0,16) dichterbij, tot `BAAN_MIN`·ring (1,0, precies op de ring).
+
+Per gat met straal `r` (`GAT_R_MIN` 46 + tot `GAT_R_SPREIDING` 16): trekzone `GAT_ZONE`·r (3,5), trek `GAT_TREK` (9,5) op afstand r, rode stippelring op `GAT_RING`·r waar de trek gelijk is aan de vliegsnelheid 7. Kern 0,42·r slokt de raket op (`slok5`, 40 beelden draaien en krimpen, dan `triggerDeath`). Doel `DOEL5` = 100 (twee gaten), bekers 150/300/500.
+
+Rocketman geeft lessen in een spreekballon (`geefLes`, teksten `les.1-5`, `les.diamant`, `les.goed`). Linksboven staat "Gat n • gepakt/5". Debugscherm (D) toont kern, ring, trekzone en baan.
 
 In het menu van hoofdstuk 2 staat geen familierij, alleen Rocketman naast zijn raket.
 
