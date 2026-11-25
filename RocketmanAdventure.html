@@ -3141,7 +3141,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 setMelody([262, 294, 330, 349, 392, 349, 330, 294], 260);
                 setMusicActive(true);
                 lvlDuration = 45 * 60;
-                laserTimer = 0; laserIdx = 0;
+                laserTimer = 0; laserIdx = 0; laserPhase = 'cool';
                 setupLasers();
                 setupRuines();
                 setupKeyFragments();
@@ -4670,7 +4670,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 ctx.beginPath(); ctx.moveTo(x, 22); ctx.lineTo(x, H - 22); ctx.stroke();
                 ctx.restore();
             } else if (fase === 'fire') {
-                const f = laserTimer - LASER_WARN, on = Math.min(1, f / 5) * Math.min(1, (LASER_FIRE - f) / 8);
+                const f = laserTimer - LASER_WARN, on = Math.max(0, Math.min(1, f / 5) * Math.min(1, (LASER_FIRE - f) / 8));
                 ctx.save(); ctx.globalCompositeOperation = 'lighter';
                 const wg = ctx.createLinearGradient(x - 42, 0, x + 42, 0);
                 wg.addColorStop(0, 'rgba(255,40,30,0)'); wg.addColorStop(0.5, `rgba(255,40,30,${0.45 * on})`); wg.addColorStop(1, 'rgba(255,40,30,0)');
