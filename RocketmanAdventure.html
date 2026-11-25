@@ -280,6 +280,7 @@
                 'les.5': 'Bij elk volgend gat draaien de munten dichter bij de rand. Balanceren!',
                 'les.diamant': 'Zie je die diamant? Die verdubbelt je hele score!',
                 'les.stil': 'Stilstaan helpt niet! Hoe langer je op één plek blijft, hoe harder hij trekt.',
+                'les.spiraal': 'Snel! Na één rondje draaien de munten het gat in.',
                 'les.goed': 'Goed zo! Jij balanceert als een echte Rocketman.',
                 'les.wie': 'Rocketman',
                 'pop.opgeslokt': 'OPGESLOKT!',
@@ -390,6 +391,7 @@
                 'les.5': 'Each next hole, the coins orbit closer to the edge. Balance!',
                 'les.diamant': 'See that diamond? It doubles your whole score!',
                 'les.stil': 'Standing still won\'t help! The longer you stay in one spot, the harder it pulls.',
+                'les.spiraal': 'Hurry! After one lap the coins spiral into the hole.',
                 'les.goed': 'Well done! You balance like a real Rocketman.',
                 'les.wie': 'Rocketman',
                 'pop.opgeslokt': 'SWALLOWED!',
@@ -4233,6 +4235,9 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         // Weggetrokken worden of heen en weer wiebelen binnen de cirkel niet.
         const STIL_STRAAL = 40, STIL_WACHT = 60, STIL_OPBOUW = 240, STIL_MAX = 1.5, STIL_EXTRA = 2.5;
         let stil5 = 0, anker5 = null, stilK5 = 0, wil5 = 0, vorigeTP5 = null;
+        // Munten: draaien MUNT_RONDJES keer rond (vanaf het moment dat het gat stilhangt), daarna krimpt de baan elk beeld
+        // met factor MUNT_SPIRAAL en draaien ze sneller; bij 0,45·r slokt het gat ze op
+        const MUNT_DRAAI = 0.022, MUNT_RONDJES = 1, MUNT_SPIRAAL = 0.996;
         // Hoeveel de speler zelf wil bewegen dit beeld: vinger op het pad, muis verschuiven of een pijltje ingedrukt
         function stuurWil5(SPEED) {
             let w = 0;
@@ -4337,10 +4342,25 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
 
             coins.forEach(c => {
                 if (c.dead || !c.gat) return;
-                c.hoek += 0.022;
-                c.x = c.gat.x + Math.cos(c.hoek) * c.baan - 18; c.y = c.gat.y + Math.sin(c.hoek) * c.baan - 18;
+                const g = c.gat;
+                if (g.y < g.parkY) {
+                    c.hoek += MUNT_DRAAI;
+                } else {
+                    c.gedraaid = (c.gedraaid || 0) + MUNT_DRAAI * Math.sqrt(g.baan / c.baan);
+                    c.hoek += MUNT_DRAAI * Math.sqrt(g.baan / c.baan);
+                    if (c.gedraaid > Math.PI * 2 * MUNT_RONDJES) {
+                        c.baan *= MUNT_SPIRAAL; geefLes('spiraal');
+                        if (c.baan < g.r * 0.45) {
+                            c.dead = true; playTone(110, 0.35, 'sine', 0.08);
+                            spawnConfettiBurst(g.x, g.y, ['#8b5cf6', '#c49af0', '#ff6fb8'], 8);
+                            return;
+                        }
+                    }
+                }
+                c.x = g.x + Math.cos(c.hoek) * c.baan - 18; c.y = g.y + Math.sin(c.hoek) * c.baan - 18;
                 if (raketPakt(c.x + 18, c.y + 18, 15)) {
                     collectCoin(c);
+                    g.gepakt = (g.gepakt || 0) + 1;
                     if (c.type === 'gold') { coinScore += 5; popup = { text: '+10', timer: 50, color: '#ff9ad5' }; }
                 }
             });
@@ -4457,9 +4477,9 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             drawHUD(score + coinScore, ammo, rocket.invul, popup);
             if (!levelGoalBeaten) drawBalk(W / 2, H - 30, 200, 14, (score + coinScore) / DOEL5, '#ff6fb8', TX('balk.doel', { n: DOEL5 }));
             if (gatNr5 > 0 && lvlState === 'playing') {
-                const over = coins.filter(c => c.gat && !c.gat.sluit).length;
+                const actief = gaten5.find(g => !g.sluit) || gaten5[0];
                 ctx.save(); ctx.textAlign = 'left';
-                randTekst(TX('hud.gat', { n: gatNr5, m: MUNTEN_PER_GAT - over, t: MUNTEN_PER_GAT }), 20, 32, 'bold 13px sans-serif', '#ffc0e4', 3);
+                randTekst(TX('hud.gat', { n: gatNr5, m: actief ? actief.gepakt || 0 : MUNTEN_PER_GAT, t: MUNTEN_PER_GAT }), 20, 32, 'bold 13px sans-serif', '#ffc0e4', 3);
                 ctx.restore();
             }
             tekenLes5();
