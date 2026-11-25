@@ -118,6 +118,7 @@ Score-drempelwaarden per level (`medailles` in `LEVELS`):
 - Level 2: brons=150, zilver=375, goud=750
 - Level 3: brons=200, zilver=500, goud=1000
 - Level 4: brons=300, zilver=750, goud=1500
+- Level 5: brons=100, zilver=250, goud=500
 
 Cups worden getoond op de level-kaart (top-rechts, 80×80) en in de naam-invoer overlay.
 Functie: `getCupKey(lid, score)` → `'cup_bronze'` / `'cup_silver'` / `'cup_gold'` / `null`
@@ -145,9 +146,12 @@ Elk level heeft `hoofdstuk` (1 of 2). Het menu toont één hoofdstuk tegelijk, v
 - Hoofdstuk 2: vliegles van Rocketman, verhaal `menu2.verhaal1-4`. Dezelfde volgorde als hoofdstuk 1: meisje, mama, neef, zoon.
 - `KOMENDE_KAARTEN` geeft lege kaarten met "Binnenkort" voor levels die nog niet bestaan. Haal een naam weg zodra dat level in `LEVELS` staat.
 - Bij opstarten: wie level 4 al had, krijgt level 5 ontgrendeld.
+- `?preview=4` en de cutscene van level 4 doorklikken ontgrendelt level 5 en zet het menu op hoofdstuk 2.
+
+`sw.js` serveert alles eerst uit de cache. Verhoog `CACHE` bij elke nieuwe versie, anders houdt een telefoon de oude versie.
 
 ### Velden voor hoofdstuk 2
-- `piloot: { n, emoji, frames }`: wie er vliegt. De kaart toont dan het bevrijd-sprite in plaats van een komeet, en de cutscene speelt alleen de genoemde frames van `<n>_bevrijd_spritesheet`. Voor het meisje zijn dat 0, 1 en 5, de frames zonder kapotte komeet.
+- `piloot: { n, emoji, frames }`: wie er vliegt. De kaart toont dan het bevrijd-sprite in plaats van een komeet, en de cutscene speelt alleen de genoemde frames van `<n>_bevrijd_spritesheet`. Voor het meisje is dat alleen frame 5 (armen omhoog, sterren): ze komt niet meer uit een komeet.
 - `raketStijl`: naam van een stijl in `GFX` (bijv. `'RAKET_MEISJE'`). `GFX.drawRaket` krijgt die als laatste argument. `RAKET_STD` zijn de kleuren van Rocketman. Een stijl bepaalt romp, vinnen, rand, handgrepen, pak, mouwen, handschoenen, `piloot` (`'prof'` of `'meisje'`, het hoofd in de patrijspoort) en `hartjes` (hartjes op de romp en als neuslamp).
 - `schieten: false`: geen schietknop en geen schiet-aanraakvlak.
 
