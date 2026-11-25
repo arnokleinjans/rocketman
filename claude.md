@@ -1,3 +1,6 @@
+<!-- deploy-regel-v1 -->
+> **⛔ Deploy-regel (geldt voor ALLE projecten):** Push NOOIT naar GitHub en deploy NOOIT naar Vercel of enige andere hosting/remote, tenzij Arno daar in dít bericht expliciet om vraagt. Lokaal committen en branchen mag; maar `git push`, het aanmaken van remote repos, `vercel`/deploy-commando's, en het wijzigen van remote secrets/omgevingsvariabelen vereisen telkens een nieuwe, expliciete opdracht. Toestemming voor één push/deploy geldt niet voor de volgende. Bij twijfel: eerst vragen.
+
 # Rocketman Adventure - Samenvatting
 
 ## Overzicht
@@ -20,7 +23,8 @@ Interactief HTML5-Canvas spel met raket-karakter dat door niveaus moet navigeren
 ## Bestanden
 - `RocketmanAdventure.html` - Main game file
 - `resources/` - Assets (sprites, sounds, JSON configs)
-- `test_spritesheet.html` - Tool om sprite sheets te testen en uitlijnen
+- `test_spritesheet.html`, de proefpagina's en ongebruikte sprites staan sinds 25-11-2026 in `_Archief/Rocketman-backup-2026-11-25/` (zie CHANGELOG-sessies.md). Terugzetten naar deze map als je ze weer nodig hebt.
+- Raket, munten, bekers, Mars en Saturnus worden in code getekend, niet meer met sprites.
 - Documentatie: BLAUWDRUK_VOLLEDIGE_ANALYSE.md, Opzet.md
 
 ---
