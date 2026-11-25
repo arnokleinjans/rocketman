@@ -4224,11 +4224,11 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         // Binnen de rode ring trekt het gat harder dan de raket kan vliegen; de kern (0,42·r) slokt de raket op.
         let gaten5 = [], gatTimer5 = 0, gatNr5 = 0, slok5 = null, les5 = { gehad: {}, rij: [], tekst: '', timer: 0 };
         const LES_DUUR = 260, SLOK_DUUR = 40;
-        // Moeilijkheid. GAT_TREK = trekkracht op straal r; de rode ring ligt waar de trek gelijk is aan de vliegsnelheid (7).
-        // Baan van de munten = BAAN_START·ring bij het eerste gat, per gat BAAN_STAP dichterbij, tot BAAN_MIN·ring.
-        const GAT_R_MIN = 46, GAT_R_SPREIDING = 16, GAT_TREK = 9.5, GAT_ZONE = 3.5;
-        const GAT_RING = Math.pow(GAT_TREK / 7, 2 / 3);
-        const BAAN_START = 2.4, BAAN_STAP = 0.16, BAAN_MIN = 1.0, MUNTEN_PER_GAT = 5, DOEL5 = 100, DIAMANT_ELK = 3;
+        // Moeilijkheid zit in de trek. GAT_TREK = trekkracht op straal r bij het eerste gat; elk volgend gat TREK_GROEI meer,
+        // tot TREK_MAX keer. De rode ring ligt waar de trek gelijk is aan de vliegsnelheid (7), dus schuift mee naar buiten.
+        // Baan van de munten in straal r: BAAN_START bij het eerste gat, per gat BAAN_STAP dichterbij, tot BAAN_MIN.
+        const GAT_R_MIN = 46, GAT_R_SPREIDING = 16, GAT_TREK = 9.5, GAT_ZONE = 3.5, TREK_GROEI = 0.08, TREK_MAX = 1.8;
+        const BAAN_START = 2.8, BAAN_STAP = 0.05, BAAN_MIN = 2.3, MUNTEN_PER_GAT = 5, DOEL5 = 100, DIAMANT_ELK = 3;
         // Stilstaan: blijft de raket binnen STIL_STRAAL van een ankerpunt, dan loopt de trek op na STIL_WACHT beelden,
         // in STIL_OPBOUW beelden tot factor 1, maximaal STIL_MAX. Trek ×(1 + factor) plus STIL_EXTRA × factor, ook aan de rand.
         // Alleen zelf wegsturen (muis/vinger verschuiven of pijltje, en de raket gaat echt van zijn plek) zet de factor terug op 0.
@@ -4236,8 +4236,8 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         const STIL_STRAAL = 40, STIL_WACHT = 60, STIL_OPBOUW = 240, STIL_MAX = 1.5, STIL_EXTRA = 2.5;
         let stil5 = 0, anker5 = null, stilK5 = 0, wil5 = 0, vorigeTP5 = null;
         // Munten: draaien MUNT_RONDJES keer rond (vanaf het moment dat het gat stilhangt), daarna krimpt de baan elk beeld
-        // met factor MUNT_SPIRAAL en draaien ze sneller; bij 0,45·r slokt het gat ze op
-        const MUNT_DRAAI = 0.022, MUNT_RONDJES = 1, MUNT_SPIRAAL = 0.996;
+        // met MUNT_VAL·(startbaan/baan)^1,5 pixels per beeld: rustig begin, steeds sneller naar binnen. Bij 0,45·r slokt het gat ze op
+        const MUNT_DRAAI = 0.022, MUNT_RONDJES = 1, MUNT_VAL = 0.22;
         // Hoeveel de speler zelf wil bewegen dit beeld: vinger op het pad, muis verschuiven of een pijltje ingedrukt
         function stuurWil5(SPEED) {
             let w = 0;
@@ -4269,10 +4269,12 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         }
         function spawnGat5() {
             const r = GAT_R_MIN + Math.random() * GAT_R_SPREIDING;
-            const baan = r * GAT_RING * Math.max(BAAN_MIN, BAAN_START - gatNr5 * BAAN_STAP);
+            const trek = GAT_TREK * Math.min(TREK_MAX, 1 + gatNr5 * TREK_GROEI);
+            const ringK = Math.pow(trek / 7, 2 / 3);
+            const baan = r * Math.max(BAAN_MIN, BAAN_START - gatNr5 * BAAN_STAP);
             const xMin = baan + 26, xMax = W - baan - 26;
             const x = xMin < xMax ? xMin + Math.random() * (xMax - xMin) : W / 2;
-            const g = { x, y: -r * 1.6, r, parkY: Math.max(260, baan + 110), baan, sluit: false, seed: Math.random() * 6, nr: gatNr5 };
+            const g = { x, y: -r * 1.6, r, trek, ringK, parkY: Math.max(260, baan + 110), baan, sluit: false, seed: Math.random() * 6, nr: gatNr5 };
             gaten5.push(g);
             const diamant = (gatNr5 + 1) % DIAMANT_ELK === 0;
             for (let k = 0; k < MUNTEN_PER_GAT; k++) coins.push({ type: diamant && k === 0 ? 'blue' : 'gold', bonus: true, gat: g, hoek: k * Math.PI * 2 / MUNTEN_PER_GAT, baan, x: -99, y: -99, dead: false });
@@ -4315,11 +4317,11 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 else if (g.y < g.parkY) g.y = Math.min(g.parkY, g.y + 2.2);
                 const dx = g.x - rp.x, dy = g.y - rp.y, d = Math.hypot(dx, dy) || 1, trekR = g.r * GAT_ZONE;
                 if (d < trekR * 1.15) {
-                    const basis = d < trekR ? GAT_TREK * Math.pow(g.r / Math.max(d, g.r * 0.3), 1.5) * Math.min(1, (trekR - d) / g.r) : 0;
+                    const basis = d < trekR ? g.trek * Math.pow(g.r / Math.max(d, g.r * 0.3), 1.5) * Math.min(1, (trekR - d) / g.r) : 0;
                     const f = basis * (1 + stilK5) + STIL_EXTRA * stilK5;
                     rocket.x += dx / d * f; rocket.y += dy / d * f;
                     trek = Math.max(trek, f);
-                    if (d < g.r * GAT_RING * 1.4) geefLes('3');
+                    if (d < g.r * g.ringK * 1.4) geefLes('3');
                 }
                 if (!slok5 && !g.sluit && raketRaakt(g.x, g.y, g.r * 0.42)) {
                     slok5 = { g, t: 0 }; playTone(70, 1.0, 'sawtooth', 0.25);
@@ -4349,7 +4351,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                     c.gedraaid = (c.gedraaid || 0) + MUNT_DRAAI * Math.sqrt(g.baan / c.baan);
                     c.hoek += MUNT_DRAAI * Math.sqrt(g.baan / c.baan);
                     if (c.gedraaid > Math.PI * 2 * MUNT_RONDJES) {
-                        c.baan *= MUNT_SPIRAAL; geefLes('spiraal');
+                        c.baan -= MUNT_VAL * Math.pow(g.baan / c.baan, 1.5); geefLes('spiraal');
                         if (c.baan < g.r * 0.45) {
                             c.dead = true; playTone(110, 0.35, 'sine', 0.08);
                             spawnConfettiBurst(g.x, g.y, ['#8b5cf6', '#c49af0', '#ff6fb8'], 8);
@@ -4397,7 +4399,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             }
         }
         function tekenGat5(g, t) {
-            const trekR = g.r * GAT_ZONE, ringR = g.r * GAT_RING;
+            const trekR = g.r * GAT_ZONE, ringR = g.r * g.ringK;
             const z = ctx.createRadialGradient(g.x, g.y, g.r, g.x, g.y, trekR);
             z.addColorStop(0, `rgba(${150 + 80 * Math.min(1, stilK5)},60,255,${0.16 + 0.14 * Math.min(1, stilK5)})`); z.addColorStop(1, 'rgba(150,60,255,0)');
             ctx.fillStyle = z; ctx.beginPath(); ctx.arc(g.x, g.y, trekR, 0, Math.PI * 2); ctx.fill();
@@ -5447,7 +5449,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                     ctx.beginPath(); ctx.moveTo(p.x + ux * PAK_ACHTER * s, p.y + uy * PAK_ACHTER * s); ctx.lineTo(p.x + ux * PAK_VOOR * s, p.y + uy * PAK_VOOR * s); ctx.stroke();
                     ctx.globalAlpha = 1; ctx.lineWidth = 1;
                 }
-                if (currentLevelId === 5) gaten5.forEach(g => { cirkel(g.x, g.y, g.r * 0.42, '#ff5050'); cirkel(g.x, g.y, g.r * GAT_RING, '#ffb050'); cirkel(g.x, g.y, g.r * GAT_ZONE, '#b080ff'); cirkel(g.x, g.y, g.baan, '#ffe060'); });
+                if (currentLevelId === 5) gaten5.forEach(g => { cirkel(g.x, g.y, g.r * 0.42, '#ff5050'); cirkel(g.x, g.y, g.r * g.ringK, '#ffb050'); cirkel(g.x, g.y, g.r * GAT_ZONE, '#b080ff'); cirkel(g.x, g.y, g.baan, '#ffe060'); });
                 if (currentLevelId === 4 && laserPhase === 'fire') { const l = lasers[laserIdx]; ctx.strokeStyle = '#ff5050'; ctx.strokeRect(l.x - 10, 0, 20, H); }
                 ctx.restore();
             }
