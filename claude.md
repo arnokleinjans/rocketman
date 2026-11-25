@@ -156,7 +156,9 @@ Elk level heeft `hoofdstuk` (1 of 2). Het menu toont één hoofdstuk tegelijk, v
 - `schieten: false`: geen schietknop en geen schiet-aanraakvlak.
 
 ### Level 5: Vliegles Meisje
-Verticaal zoals level 1 (`stuurVerticaal()` is de gedeelde besturing). Zwarte gaten (`gaten5`) drijven omlaag, maximaal 2 tegelijk. Per gat met straal `r`: trekzone 3,2·r, rode stippelring op r (daarbinnen trekt het gat harder dan de raket vliegt), kern 0,42·r slokt de raket op (`slok5`, 40 beelden draaien en krimpen, dan `triggerDeath`). Vijf gouden munten draaien in een baan om elk gat, +10 per munt. Rocketman geeft lessen in een spreekballon (`geefLes`, teksten `les.1-4` en `les.goed`). Debugscherm (D) toont kern, ring en trekzone.
+Verticaal zoals level 1 (`stuurVerticaal()` is de gedeelde besturing). Zwarte gaten (`gaten5`) drijven omlaag, maximaal 2 tegelijk. Per gat met straal `r`: trekzone `GAT_ZONE`·r, trek `GAT_TREK` op afstand r, rode stippelring op `GAT_RING`·r, waar de trek gelijk is aan de vliegsnelheid 7 (daarbinnen trekt het gat harder dan de raket vliegt), kern 0,42·r slokt de raket op (`slok5`, 40 beelden draaien en krimpen, dan `triggerDeath`). Vijf gouden munten draaien in een baan om elk gat, +10 per munt. Rocketman geeft lessen in een spreekballon (`geefLes`, teksten `les.1-4` en `les.goed`). Debugscherm (D) toont kern, ring en trekzone. Moeilijkheid staat in de constanten `GAT_R_MIN`, `GAT_R_SPREIDING`, `GAT_R_GROEI`, `GAT_TREK`, `GAT_ZONE`, `GAT_MAX` bij de start van level 5 (nu 46, 16, 12, 9,5, 3,5, 2).
+
+In het menu van hoofdstuk 2 staat geen familierij, alleen Rocketman naast zijn raket.
 
 Nog niet in de lijst, omdat ze alleen binnen één level spelen: `blackHoleTimer3`, de pop-up `pop.mamaVrij` en de botsingscirkels in het debugscherm (toets D).
 

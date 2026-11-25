@@ -3515,11 +3515,12 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
 
             // Draw rescued family (larger, between cards and play button)
             // Elk familielid verschijnt zodra het bijbehorende level is behaald (goal beaten)
+            // Hoofdstuk 2: geen familierij, alleen Rocketman trots naast zijn raket
             const family = [];
-            const famLevels = LEVELS.filter(l => l.familie);
+            const famLevels = menuHoofdstuk === 1 ? LEVELS.filter(l => l.familie) : [];
             const lastBeaten = famLevels.map(l => l.id).filter(hasBeatenGoal).pop() || 0;
             const eersteFam = famLevels.length ? famLevels[0].id : 0;
-            family.push(eersteFam && hasBeatenGoal(eersteFam)
+            if (menuHoofdstuk === 1) family.push(eersteFam && hasBeatenGoal(eersteFam)
                 ? { k: 'rocketman' }
                 : { k: 'rocketman_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: true });
             famLevels.forEach(l => {
@@ -3565,6 +3566,19 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 }
                 sx += f.w + pad;
             });
+            if (menuHoofdstuk === 2) {
+                const vloer = familyY + fh, rh = fh * 1.12, rx = W / 2 + 46;
+                ctx.save();
+                ctx.fillStyle = 'rgba(0,0,30,0.35)';
+                ctx.beginPath(); ctx.ellipse(W / 2 - 4, vloer - 2, 120, 9, 0, 0, Math.PI * 2); ctx.fill();
+                GFX.drawRaket(ctx, rx, vloer - rh * 0.43, rh, 0, frameCount / 60, null, null, 0);
+                ctx.restore();
+                const img = images.rocketman;
+                if (imageStatus.rocketman && img.naturalHeight) {
+                    const mw = fh * img.naturalWidth / img.naturalHeight;
+                    ctx.drawImage(img, W / 2 - 18 - mw, familyY, mw, fh);
+                }
+            }
 
             const bx = W / 2 - 115, by = H - 70, bw = 230, bh = 55;
             const btnScale = menuHoverBtn ? 1.05 : 1;
@@ -4190,6 +4204,9 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         // dan de raket kan vliegen; de kern (0,42·r) slokt de raket op. Goud in een baan rond een gat is +10.
         let gaten5 = [], gatTimer5 = 0, slok5 = null, les5 = { gehad: {}, rij: [], tekst: '', timer: 0 };
         const LES_DUUR = 260, SLOK_DUUR = 40;
+        // Moeilijkheid. GAT_TREK = trekkracht op straal r; de rode ring ligt waar de trek gelijk is aan de vliegsnelheid (7)
+        const GAT_R_MIN = 46, GAT_R_SPREIDING = 16, GAT_R_GROEI = 12, GAT_TREK = 9.5, GAT_ZONE = 3.5, GAT_MAX = 2;
+        const GAT_RING = Math.pow(GAT_TREK / 7, 2 / 3);
         function initLevel5() {
             rocket = { x: W / 2 - 20, y: H - 160, vx: 0, vy: 0, angle: 0, invul: 0, angleDisplay: 0 };
             stars1 = makeStars(60);
@@ -4209,10 +4226,10 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             les5.gehad[k] = true; les5.rij.push(TX('les.' + k));
         }
         function spawnGat5() {
-            const r = 34 + Math.random() * 14 + Math.min(10, lvlFrames / 700);
-            const g = { x: 70 + Math.random() * (W - 140), y: -r * 1.6, r, vx: (Math.random() - 0.5) * 0.5, seed: Math.random() * 6 };
+            const r = GAT_R_MIN + Math.random() * GAT_R_SPREIDING + Math.min(GAT_R_GROEI, lvlFrames / 600);
+            const g = { x: r + Math.random() * (W - 2 * r), y: -r * 1.6, r, vx: (Math.random() - 0.5) * 0.5, seed: Math.random() * 6 };
             gaten5.push(g);
-            for (let k = 0; k < 5; k++) coins.push({ type: 'gold', bonus: true, gat: g, hoek: k * Math.PI * 2 / 5, baan: r * 1.8, x: -99, y: -99, dead: false });
+            for (let k = 0; k < 5; k++) coins.push({ type: 'gold', bonus: true, gat: g, hoek: k * Math.PI * 2 / 5, baan: r * GAT_RING * 1.5, x: -99, y: -99, dead: false });
         }
         function updateLevel5() {
             const SPEED = 7;
@@ -4249,12 +4266,12 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             gaten5.forEach(g => {
                 g.y += effSpeed * 0.6; g.x += g.vx;
                 if (g.x < g.r || g.x > W - g.r) g.vx = -g.vx;
-                const dx = g.x - rp.x, dy = g.y - rp.y, d = Math.hypot(dx, dy) || 1, trekR = g.r * 3.2;
+                const dx = g.x - rp.x, dy = g.y - rp.y, d = Math.hypot(dx, dy) || 1, trekR = g.r * GAT_ZONE;
                 if (d < trekR) {
-                    const f = 7.5 * Math.pow(g.r / Math.max(d, g.r * 0.3), 1.5) * Math.min(1, (trekR - d) / g.r);
+                    const f = GAT_TREK * Math.pow(g.r / Math.max(d, g.r * 0.3), 1.5) * Math.min(1, (trekR - d) / g.r);
                     rocket.x += dx / d * f; rocket.y += dy / d * f;
                     trek = Math.max(trek, f);
-                    if (d < g.r * 1.7) geefLes('3');
+                    if (d < g.r * GAT_RING * 1.4) geefLes('3');
                 }
                 if (!slok5 && raketRaakt(g.x, g.y, g.r * 0.42)) {
                     slok5 = { g, t: 0 }; playTone(70, 1.0, 'sawtooth', 0.25);
@@ -4269,7 +4286,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             spawnFireRaket();
 
             gatTimer5--;
-            if (gatTimer5 <= 0 && gaten5.length < 2) {
+            if (gatTimer5 <= 0 && gaten5.length < GAT_MAX) {
                 spawnGat5();
                 gatTimer5 = Math.max(150, 320 - lvlFrames / 20);
                 if (les5.gehad['1'] && lvlFrames > 400) geefLes('4');
@@ -4315,7 +4332,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             }
         }
         function tekenGat5(g, t) {
-            const trekR = g.r * 3.2;
+            const trekR = g.r * GAT_ZONE, ringR = g.r * GAT_RING;
             const z = ctx.createRadialGradient(g.x, g.y, g.r, g.x, g.y, trekR);
             z.addColorStop(0, 'rgba(150,60,255,0.16)'); z.addColorStop(1, 'rgba(150,60,255,0)');
             ctx.fillStyle = z; ctx.beginPath(); ctx.arc(g.x, g.y, trekR, 0, Math.PI * 2); ctx.fill();
@@ -4323,9 +4340,9 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             ctx.save();
             ctx.setLineDash([8, 6]); ctx.lineDashOffset = -t * 20;
             ctx.strokeStyle = 'rgba(60,0,10,0.6)'; ctx.lineWidth = 4.5;
-            ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(g.x, g.y, ringR, 0, Math.PI * 2); ctx.stroke();
             ctx.strokeStyle = `rgba(255,60,80,${0.75 + 0.25 * Math.sin(t * 4 + g.seed)})`; ctx.lineWidth = 2.5;
-            ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(g.x, g.y, ringR, 0, Math.PI * 2); ctx.stroke();
             ctx.restore();
         }
         function tekenLes5() {
@@ -5332,7 +5349,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 if (currentLevelId === 1) birds.forEach(b => cirkel(b.x + 15, b.y + 16, 15, '#ff5050'));
                 coins.forEach(c => { if (!c.dead && c.type === 'red') cirkel(c.x + 18, c.y + 18, 16, '#ff5050'); });
                 if (currentLevelId === 3) rings.forEach(rg => { if (rg.x < -80 || rg.x > W + 80) return; rg.topRocks.concat(rg.botRocks).forEach(k => { if (!steenVerstopt(rg, k)) cirkel(rg.x + 19 + k.dx, k.y, k.size * 0.62, '#ff9050'); }); });
-                if (currentLevelId === 5) gaten5.forEach(g => { cirkel(g.x, g.y, g.r * 0.42, '#ff5050'); cirkel(g.x, g.y, g.r, '#ffb050'); cirkel(g.x, g.y, g.r * 3.2, '#b080ff'); });
+                if (currentLevelId === 5) gaten5.forEach(g => { cirkel(g.x, g.y, g.r * 0.42, '#ff5050'); cirkel(g.x, g.y, g.r * GAT_RING, '#ffb050'); cirkel(g.x, g.y, g.r * GAT_ZONE, '#b080ff'); });
                 if (currentLevelId === 4 && laserPhase === 'fire') { const l = lasers[laserIdx]; ctx.strokeStyle = '#ff5050'; ctx.strokeRect(l.x - 10, 0, 20, H); }
                 ctx.restore();
             }
