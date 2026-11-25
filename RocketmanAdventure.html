@@ -260,6 +260,27 @@
                 'cs3.kop': 'Neef bevrijd!', 'cs3.zegt': '"De Ringmeester kan me niet tegenhouden!"', 'cs3.buff': 'Buff: dubbele ammo-drops',
                 'cs4.kop': 'Zoon bevrijd!', 'cs4.zegt': '"Vader! Ik heb alle sleutels gevonden!"', 'cs4.buff': 'Buff: spreidt 2 kogels tegelijk',
                 'pop.doel': 'DOEL BEHAALD!',
+                'menu2.verhaal1': 'De familie is weer compleet!',
+                'menu2.verhaal2': 'Nu krijgt iedereen vliegles van Rocketman.',
+                'menu2.verhaal3': 'Wie goed kan vliegen, wordt nooit meer gevangen.',
+                'menu2.verhaal4': 'Leer vliegen als een echte Rocketman!',
+                'menu.h1': 'Hoofdstuk 1', 'menu.h2': 'Hoofdstuk 2', 'menu.binnenkort': 'Binnenkort',
+                'kh.mama': 'Mama leert vliegen', 'kh.neef': 'Neef leert vliegen', 'kh.zoon': 'Zoon leert vliegen',
+                'lv5.naam': 'Vliegles: Meisje', 'lv5.kaart': 'Ontsnap aan het zwarte gat',
+                'lv5.verhaal': 'Papa: "Zwarte gaten trekken je naar binnen. Ik leer je hoe je ontsnapt!"',
+                'lv5.doel': 'Haal 50 punten zonder opgeslokt te worden.',
+                'lv5.besturing': 'Pijltjes / sleep = sturen. Stuur tegen de trek in.',
+                'leg.trek': 'Zwart gat', 'leg.trek.uitleg': 'Trekt je naar binnen',
+                'leg.bonus': 'Goud in een baan', 'leg.bonus.uitleg': '+10 punten',
+                'les.1': 'Een zwart gat trekt aan je. Vlieg er met een boog omheen!',
+                'les.2': 'Voel je de trek? Stuur de andere kant op!',
+                'les.3': 'Binnen de rode ring kom je er niet meer uit.',
+                'les.4': 'Goud rond een zwart gat is dubbel waard. Durf je?',
+                'les.goed': 'Goed zo! Je vliegt al als een echte Rocketman.',
+                'les.wie': 'Rocketman',
+                'pop.opgeslokt': 'OPGESLOKT!',
+                'hint.les': 'PIJLTJES / sleep = sturen  •  ontwijk de zwarte gaten',
+                'cs5.kop': 'Meisje kan vliegen!', 'cs5.zegt': '"Papa, mij slokt geen zwart gat meer op!"', 'cs5.buff': 'Geleerd: om een zwart gat heen vliegen',
                 'pop.record': 'NIEUW RECORD!',
                 'pop.punten': '{n} PUNTEN!',
                 'pop.mamaBoss': 'MAMA BOSS!',
@@ -345,6 +366,27 @@
                 'cs3.kop': 'Nephew rescued!', 'cs3.zegt': '"The Ringmaster can\'t stop me!"', 'cs3.buff': 'Buff: double ammo drops',
                 'cs4.kop': 'Son rescued!', 'cs4.zegt': '"Dad! I found all the keys!"', 'cs4.buff': 'Buff: fires 2 bullets at once',
                 'pop.doel': 'GOAL REACHED!',
+                'menu2.verhaal1': 'The family is together again!',
+                'menu2.verhaal2': 'Now Rocketman teaches everyone to fly.',
+                'menu2.verhaal3': 'Good pilots never get caught again.',
+                'menu2.verhaal4': 'Learn to fly like a real Rocketman!',
+                'menu.h1': 'Chapter 1', 'menu.h2': 'Chapter 2', 'menu.binnenkort': 'Coming soon',
+                'kh.mama': 'Mom learns to fly', 'kh.neef': 'Nephew learns to fly', 'kh.zoon': 'Son learns to fly',
+                'lv5.naam': 'Flight lesson: Daughter', 'lv5.kaart': 'Escape the black hole',
+                'lv5.verhaal': 'Dad: "Black holes pull you in. I\'ll teach you how to escape!"',
+                'lv5.doel': 'Score 50 points without getting swallowed.',
+                'lv5.besturing': 'Arrows / drag = steer. Steer against the pull.',
+                'leg.trek': 'Black hole', 'leg.trek.uitleg': 'Pulls you in',
+                'leg.bonus': 'Orbiting gold', 'leg.bonus.uitleg': '+10 points',
+                'les.1': 'A black hole pulls at you. Fly around it in a wide arc!',
+                'les.2': 'Feel the pull? Steer the other way!',
+                'les.3': 'Inside the red ring there is no way out.',
+                'les.4': 'Gold around a black hole is worth double. Dare you?',
+                'les.goed': 'Well done! You fly like a real Rocketman.',
+                'les.wie': 'Rocketman',
+                'pop.opgeslokt': 'SWALLOWED!',
+                'hint.les': 'ARROWS / drag = steer  •  avoid the black holes',
+                'cs5.kop': 'Daughter can fly!', 'cs5.zegt': '"Dad, no black hole can swallow me now!"', 'cs5.buff': 'Learned: flying around a black hole',
                 'pop.record': 'NEW RECORD!',
                 'pop.punten': '{n} POINTS!',
                 'pop.mamaBoss': 'MOM BOSS!',
@@ -709,28 +751,46 @@
         // Eén blok per level. Teksten komen uit TX('lv<id>.…') en TX('cs<id>.…').
         // familie is optioneel: een level zonder familie toont geen komeet op de kaart en geen familielid in het menu.
         const LEVELS = [
-            { id: 1, mode: 'FLIGHT', kleur: '#4a9eff', medailles: [100, 250, 500],
+            { id: 1, hoofdstuk: 1, mode: 'FLIGHT', kleur: '#4a9eff', medailles: [100, 250, 500],
               legenda: ['gold', 'ammo', 'green', 'blue', 'red', 'black', 'clock', 'comet', 'bird'],
               familie: { n: 'meisje', emoji: '👧', c: 4, sheet: 'meisje_komeet_spritesheet' },
               init: initLevel1, update: updateLevel1, teken: drawLevel1 },
-            { id: 2, mode: 'SPACE', kleur: '#c85a2a', medailles: [150, 375, 750],
+            { id: 2, hoofdstuk: 1, mode: 'SPACE', kleur: '#c85a2a', medailles: [150, 375, 750],
               legenda: ['gold', 'ammo', 'green', 'blue', 'red', 'black', 'clock', 'comet'],
               familie: { n: 'mama', emoji: '👩', c: 3, sheet: 'mama_komeet_spritesheet' },
               init: initLevel2, update: updateLevel2, teken: drawLevel2 },
-            { id: 3, mode: 'SPACE', kleur: '#d4a853', medailles: [200, 500, 1000],
+            { id: 3, hoofdstuk: 1, mode: 'SPACE', kleur: '#d4a853', medailles: [200, 500, 1000],
               legenda: ['gold', 'ammo', 'green', 'blue', 'black', 'clock', 'comet', 'ring'],
               familie: { n: 'neef', emoji: '🧒', c: 3, sheet: 'neef_komeet_spritesheet' },
               init: initLevel3, update: updateLevel3, teken: drawLevel3 },
-            { id: 4, mode: 'FLIGHT', kleur: '#40E0D0', medailles: [300, 750, 1500],
+            { id: 4, hoofdstuk: 1, mode: 'FLIGHT', kleur: '#40E0D0', medailles: [300, 750, 1500],
               legenda: ['ammo', 'keyFragment', 'clock', 'green', 'blue', 'laser'],
               familie: { n: 'zoon', emoji: '👦', c: 3, sheet: 'zoon_komeet_spritesheet' },
               init: initLevel4, update: updateLevel4, teken: drawLevel4 },
+            { id: 5, hoofdstuk: 2, mode: 'FLIGHT', kleur: '#ff6fb8', medailles: [100, 250, 500],
+              legenda: ['trek', 'gold', 'bonus', 'blue', 'clock'],
+              piloot: { n: 'meisje', emoji: '👧', frames: [0, 1, 5] }, raketStijl: 'RAKET_MEISJE', schieten: false,
+              init: initLevel5, update: updateLevel5, teken: drawLevel5 },
         ];
+        // Kaarten die nog komen, per hoofdstuk, in de volgorde van hoofdstuk 1
+        const KOMENDE_KAARTEN = { 2: ['mama', 'neef', 'zoon'] };
+        let menuHoofdstuk = 1;
+        function levelsVan(hs) { return LEVELS.filter(l => l.hoofdstuk === hs); }
+        function hoogsteHoofdstuk() { return Math.max(...LEVELS.filter(l => devUnlocked || isUnlocked(l.id)).map(l => l.hoofdstuk)); }
+        function kiesHoofdstuk() { menuHoofdstuk = hoogsteHoofdstuk(); }
         function levelDef(id) { return LEVELS.find(l => l.id === id); }
         function kaartPlek(i) { return { x: 20 + (i % 2) * 235, y: 285 + Math.floor(i / 2) * 108, w: 220, h: 95 }; }
         function kaartOnder(cx, cy) {
-            const i = LEVELS.findIndex((lv, j) => { const k = kaartPlek(j); return cx > k.x && cx < k.x + k.w && cy > k.y && cy < k.y + k.h; });
-            return i < 0 ? 0 : LEVELS[i].id;
+            const lijst = levelsVan(menuHoofdstuk);
+            const i = lijst.findIndex((lv, j) => { const k = kaartPlek(j); return cx > k.x && cx < k.x + k.w && cy > k.y && cy < k.y + k.h; });
+            return i < 0 ? 0 : lijst[i].id;
+        }
+        const HS_TAB = { y: 249, h: 22, w: 104 };
+        function hoofdstukTabOnder(cx, cy) {
+            if (hoogsteHoofdstuk() < 2 || cy < HS_TAB.y || cy > HS_TAB.y + HS_TAB.h) return 0;
+            if (cx > W / 2 - 4 - HS_TAB.w && cx < W / 2 - 4) return 1;
+            if (cx > W / 2 + 4 && cx < W / 2 + 4 + HS_TAB.w) return 2;
+            return 0;
         }
         function huidigLevel() { return levelDef(currentLevelId) || LEVELS[0]; }
         function getMedalEmoji(lid, score) {
@@ -872,7 +932,8 @@
             else {
                 // Roer volgt de kanteling en stuurt het hoofd van de professor. De voorste vin draait in drawFin tegen de kanteling in
                 if (gameMode === 'playing') rocket.roer = (rocket.roer || 0) + (-Math.max(-10, Math.min(10, (rocket.angleDisplay || 0) * 2)) - (rocket.roer || 0)) * 0.15;
-                GFX.drawRaket(ctx, p.x, p.y, p.h, p.a, t, null, p.roll, rocket.roer || 0);
+                const stijl = huidigLevel().raketStijl;
+                GFX.drawRaket(ctx, p.x, p.y, p.h, p.a, t, null, p.roll, rocket.roer || 0, stijl ? GFX[stijl] : null);
             }
             ctx.restore();
             drawShieldArc(p, rocket.invul, t);
@@ -1005,6 +1066,78 @@ function flame(ctx, t, thrust, len) {
   });
   ctx.restore();
 }
+// Stijl van de raket. RAKET_STD zijn de kleuren van Rocketman; een level kan een eigen stijl meegeven aan drawRaket
+const RAKET_STD = {
+  romp: [[0, '#7b2fe0'], [0.35, '#5a52f0'], [0.58, '#3a8ef0'], [0.72, '#b23aa8'], [1, '#e0307c']],
+  vinA: ['#2a4ab8', '#4a8ef0', '#a8d4ff'], vinB: ['#b0247a', '#e0408a', '#ff9a3c'],
+  rand: ['#ff8a5c', '#e0362a', '#a8161a', '#5a0810'], greep: ['#7a1a10', '#ff7a4a', '#d8402a'],
+  jas: ['#f2f4f8', '#c9ced8', '#6e7686'], mouw: ['#3e4452', '#dfe3ea'], hand: ['#fff6b0', '#f7cc22', '#b07c00'],
+  piloot: 'prof', hartjes: false
+};
+const RAKET_MEISJE = {
+  romp: [[0, '#ffb8e0'], [0.35, '#ff7cc0'], [0.58, '#f455a8'], [0.72, '#d93a90'], [1, '#b02478']],
+  vinA: ['#7a2ec8', '#a868f0', '#e2c8ff'], vinB: ['#c0306e', '#ff6fa8', '#ffd0e6'],
+  rand: ['#ffd0ea', '#ff7cc0', '#c8287e', '#5a0838'], greep: ['#7a1048', '#ffa0d0', '#e0509a'],
+  jas: ['#ff8a7a', '#e0402e', '#8a1a14'], mouw: ['#6a1410', '#e04a3a'], hand: ['#ffa090', '#d83a2a', '#7a140c'],
+  piloot: 'meisje', hartjes: true
+};
+let S = RAKET_STD;
+// Het meisje van boven/achter gezien, net als de professor: paarse bob, roze haarband met strik, gezicht naar voren (omhoog)
+function meisjeKop(ctx, t) {
+  ctx.beginPath(); ctx.ellipse(0.4, 1.3, 4.9, 4.4, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(20,24,50,0.35)'; ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, -2.7, 2.7, 1.5, 0, 0, Math.PI * 2);
+  const huid = ctx.createRadialGradient(-0.7, -3.3, 0.1, 0, -2.6, 2.8);
+  huid.addColorStop(0, '#fff4ea'); huid.addColorStop(0.5, '#f8cdb0'); huid.addColorStop(1, '#d08a68');
+  ctx.fillStyle = huid; ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, -3.95, 0.65, 0.45, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#eaa888'; ctx.fill();
+
+  const zw = Math.sin(t * 3) * 0.18;
+  const bob = () => {
+    ctx.beginPath();
+    ctx.moveTo(-3.0, -2.5);
+    ctx.bezierCurveTo(-4.4, -1.6, -4.9 + zw, 1.4, -4.5 + zw, 3.4);
+    ctx.bezierCurveTo(-4.2 + zw, 4.9, -2.0, 5.3, 0, 5.2);
+    ctx.bezierCurveTo(2.0, 5.3, 4.2 + zw, 4.9, 4.5 + zw, 3.4);
+    ctx.bezierCurveTo(4.9 + zw, 1.4, 4.4, -1.6, 3.0, -2.5);
+    ctx.quadraticCurveTo(1.5, -1.9, 0, -2.3);
+    ctx.quadraticCurveTo(-1.5, -1.9, -3.0, -2.5);
+    ctx.closePath();
+  };
+  bob();
+  const haar = ctx.createRadialGradient(-1.0, 0.2, 0.3, 0.2, 1.2, 5.6);
+  haar.addColorStop(0, '#cfa8f6'); haar.addColorStop(0.4, '#9456d8'); haar.addColorStop(1, '#4a1c80');
+  ctx.fillStyle = haar; ctx.fill();
+  ctx.save(); bob(); ctx.clip();
+  ctx.strokeStyle = 'rgba(50,10,90,0.22)'; ctx.lineWidth = 0.2; ctx.lineCap = 'round';
+  for (let i = 0; i < 11; i++) {
+    const a = Math.PI * 0.05 + i / 10 * Math.PI * 0.9, b = a + 0.25;
+    ctx.beginPath(); ctx.moveTo(Math.cos(a) * 1.6, Math.sin(a) * 1.2 + 0.4);
+    ctx.quadraticCurveTo(Math.cos(b) * 3.4, Math.sin(b) * 3.0 + 0.8, Math.cos(a) * 5.4, Math.sin(a) * 4.6 + 0.8);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(235,210,255,0.35)'; ctx.lineWidth = 0.3;
+  for (let i = 0; i < 5; i++) {
+    const a = -Math.PI * 0.85 + i * 0.32;
+    ctx.beginPath(); ctx.moveTo(-0.4, 0.6); ctx.quadraticCurveTo(Math.cos(a) * 2 - 0.6, Math.sin(a) * 2 + 0.6, Math.cos(a) * 4 - 0.6, Math.sin(a) * 4 + 0.6); ctx.stroke();
+  }
+  ctx.restore();
+  bob(); ctx.strokeStyle = 'rgba(40,10,70,0.65)'; ctx.lineWidth = 0.3; ctx.stroke();
+
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-4.3, -0.4); ctx.quadraticCurveTo(0, -2.6, 4.3, -0.4);
+  ctx.strokeStyle = '#a0245c'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.strokeStyle = '#ff7cb4'; ctx.lineWidth = 1.05; ctx.stroke();
+  ctx.save(); ctx.translate(2.5, -1.3); ctx.rotate(0.4 + Math.sin(t * 4) * 0.06);
+  [-1, 1].forEach(sd => {
+    ctx.beginPath(); ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(sd * 2.3, -1.9, sd * 2.4, 0.1); ctx.quadraticCurveTo(sd * 1.5, 1.4, 0, 0);
+    ctx.fillStyle = '#ff7cb4'; ctx.fill(); ctx.strokeStyle = '#a0245c'; ctx.lineWidth = 0.3; ctx.stroke();
+  });
+  ctx.beginPath(); ctx.arc(0, 0, 0.6, 0, Math.PI * 2); ctx.fillStyle = '#e04a8c'; ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
 function drawPatrijspoort(ctx, x, y, roll, t, kop) {
   kop = kop || 0;
   ctx.save(); ctx.translate(x, y); ctx.scale(1.25, 1);
@@ -1013,7 +1146,7 @@ function drawPatrijspoort(ctx, x, y, roll, t, kop) {
 
   ctx.beginPath(); ctx.ellipse(0, 0, RX, RY, 0, 0, Math.PI * 2); ctx.ellipse(0, 0, IX, IY, 0, 0, Math.PI * 2, true);
   const rim = ctx.createLinearGradient(-RX, -RY, RX, RY);
-  rim.addColorStop(0, '#ff8a5c'); rim.addColorStop(0.35, '#e0362a'); rim.addColorStop(0.7, '#a8161a'); rim.addColorStop(1, '#5a0810');
+  rim.addColorStop(0, S.rand[0]); rim.addColorStop(0.35, S.rand[1]); rim.addColorStop(0.7, S.rand[2]); rim.addColorStop(1, S.rand[3]);
   ctx.fillStyle = rim; ctx.fill('evenodd');
   ctx.beginPath(); ctx.ellipse(0, 0, RX, RY, 0, 0, Math.PI * 2); ctx.strokeStyle = '#3a0408'; ctx.lineWidth = 0.45; ctx.stroke();
   ctx.beginPath(); ctx.ellipse(0, 0, RX - 0.55, RY - 0.55, 0, Math.PI * 1.05, Math.PI * 1.6); ctx.strokeStyle = 'rgba(255,220,200,0.7)'; ctx.lineWidth = 0.35; ctx.stroke();
@@ -1044,7 +1177,7 @@ function drawPatrijspoort(ctx, x, y, roll, t, kop) {
 
   ctx.beginPath(); ctx.ellipse(lean, 8.4, 5.6, 3.4, 0, 0, Math.PI * 2);
   const coat = ctx.createRadialGradient(-1.6 + lean, 7, 0.4, lean, 8.4, 5.8);
-  coat.addColorStop(0, '#f2f4f8'); coat.addColorStop(0.6, '#c9ced8'); coat.addColorStop(1, '#6e7686');
+  coat.addColorStop(0, S.jas[0]); coat.addColorStop(0.6, S.jas[1]); coat.addColorStop(1, S.jas[2]);
   ctx.fillStyle = coat; ctx.fill();
   ctx.strokeStyle = 'rgba(120,126,140,0.5)'; ctx.lineWidth = 0.25;
   ctx.beginPath(); ctx.moveTo(lean - 1.6, 5.6); ctx.lineTo(lean, 7.4); ctx.lineTo(lean + 1.6, 5.6); ctx.stroke();
@@ -1055,8 +1188,8 @@ function drawPatrijspoort(ctx, x, y, roll, t, kop) {
     const wr = [h[0] + sd * 0.15, h[1] + 1.9];
     const arm = () => { ctx.beginPath(); ctx.moveTo(sh[0], sh[1]); ctx.quadraticCurveTo(el[0], el[1], wr[0], wr[1]); };
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    arm(); ctx.strokeStyle = '#3e4452'; ctx.lineWidth = 3.0; ctx.stroke();
-    arm(); ctx.strokeStyle = '#dfe3ea'; ctx.lineWidth = 2.5; ctx.stroke();
+    arm(); ctx.strokeStyle = S.mouw[0]; ctx.lineWidth = 3.0; ctx.stroke();
+    arm(); ctx.strokeStyle = S.mouw[1]; ctx.lineWidth = 2.5; ctx.stroke();
     arm(); ctx.save(); ctx.translate(sd * 0.55, 0.3); ctx.strokeStyle = 'rgba(110,116,130,0.45)'; ctx.lineWidth = 0.9; ctx.stroke(); ctx.restore();
     arm(); ctx.save(); ctx.translate(-sd * 0.45, -0.2); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 0.55; ctx.stroke(); ctx.restore();
     ctx.strokeStyle = 'rgba(110,116,130,0.55)'; ctx.lineWidth = 0.22;
@@ -1081,7 +1214,7 @@ function drawPatrijspoort(ctx, x, y, roll, t, kop) {
   [-1, 1].forEach(sd => {
     const h = hand(sd);
     ctx.save(); ctx.translate(h[0], h[1]); ctx.rotate(yokeA);
-    const Y = (x0, y0, r0) => { const g = ctx.createRadialGradient(x0 - r0 * 0.35, y0 - r0 * 0.4, r0 * 0.1, x0, y0, r0 * 1.1); g.addColorStop(0, '#fff6b0'); g.addColorStop(0.5, '#f7cc22'); g.addColorStop(1, '#b07c00'); return g; };
+    const Y = (x0, y0, r0) => { const g = ctx.createRadialGradient(x0 - r0 * 0.35, y0 - r0 * 0.4, r0 * 0.1, x0, y0, r0 * 1.1); g.addColorStop(0, S.hand[0]); g.addColorStop(0.5, S.hand[1]); g.addColorStop(1, S.hand[2]); return g; };
     ctx.beginPath(); ctx.moveTo(-1.3, 1.3); ctx.lineTo(1.3, 1.3); ctx.lineTo(1.6, 2.7); ctx.lineTo(-1.6, 2.7); ctx.closePath();
     ctx.fillStyle = Y(0, 1.8, 1.6); ctx.fill(); ctx.strokeStyle = 'rgba(122,86,0,0.6)'; ctx.lineWidth = 0.2; ctx.stroke();
     ctx.beginPath(); ctx.ellipse(0, 0.55, 1.75, 1.15, 0, 0, Math.PI * 2);
@@ -1101,6 +1234,8 @@ function drawPatrijspoort(ctx, x, y, roll, t, kop) {
 
   const hx = roll * 0.5 + lean - kop * 1.8, hy = 2.0 + Math.sin(t * 2.6) * 0.12 + Math.abs(kop) * 0.6;
   ctx.save(); ctx.translate(hx, hy); ctx.rotate(-roll * 0.12 - kop * 0.45);
+  if (S.piloot === 'meisje') meisjeKop(ctx, t);
+  else {
 
   ctx.beginPath(); ctx.ellipse(0.4, 1.0, 4.3, 3.6, 0, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(20,24,50,0.35)'; ctx.fill();
@@ -1161,6 +1296,7 @@ function drawPatrijspoort(ctx, x, y, roll, t, kop) {
   const nose = ctx.createRadialGradient(-0.25, -3.65, 0.05, 0, -3.45, 0.9);
   nose.addColorStop(0, '#ffe6d6'); nose.addColorStop(1, '#c87a58');
   ctx.fillStyle = nose; ctx.fill();
+  }
   ctx.restore();
 
   const shade = ctx.createRadialGradient(0, 0, Math.min(IX, IY) * 0.6, 0, 0, IY * 1.05);
@@ -1211,8 +1347,8 @@ function vinVorm(ctx, sn, front, blue) {
   const pts = FIN_SHAPE.map(([s, y]) => [sn * (raketR(Math.min(y, 33)) + s), y]);
   ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
   const g = ctx.createLinearGradient(0, 13, 0, 43);
-  if (blue) { g.addColorStop(0, '#2a4ab8'); g.addColorStop(0.6, '#4a8ef0'); g.addColorStop(1, '#a8d4ff'); }
-  else { g.addColorStop(0, '#b0247a'); g.addColorStop(0.6, '#e0408a'); g.addColorStop(1, '#ff9a3c'); }
+  const vk = blue ? S.vinA : S.vinB;
+  g.addColorStop(0, vk[0]); g.addColorStop(0.6, vk[1]); g.addColorStop(1, vk[2]);
   ctx.fillStyle = g; ctx.fill();
   const lit = -sn * 0.5 + 0.1;
   ctx.fillStyle = lit > 0 ? `rgba(255,255,255,${lit * 0.45})` : `rgba(20,0,40,${-lit * 0.6 + (front ? 0 : 0.25)})`;
@@ -1239,13 +1375,23 @@ function drawHandle(ctx, th) {
     i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
   }
   ctx.lineCap = 'round';
-  ctx.strokeStyle = '#7a1a10'; ctx.lineWidth = 1.9; ctx.stroke();
-  ctx.strokeStyle = sn < 0 ? '#ff7a4a' : '#d8402a'; ctx.lineWidth = 1.3; ctx.stroke();
+  ctx.strokeStyle = S.greep[0]; ctx.lineWidth = 1.9; ctx.stroke();
+  ctx.strokeStyle = sn < 0 ? S.greep[1] : S.greep[2]; ctx.lineWidth = 1.3; ctx.stroke();
 }
 // roer: uitslag in graden bij sturen (positief = naar rechts). Alleen de vin die naar voren wijst draait als roer mee; het hoofd van de professor zwaait mee
 // klinknagels draaien rond de romp, radialen per seconde
 const NAGEL_DRAAI = 0.8;
-function drawRaket(ctx, x, y, h, angleDeg, t, thrust, rollDeg, roer) {
+function drawRaket(ctx, x, y, h, angleDeg, t, thrust, rollDeg, roer, stijl) {
+  S = stijl || RAKET_STD;
+  try { raketTekenen(ctx, x, y, h, angleDeg, t, thrust, rollDeg, roer); } finally { S = RAKET_STD; }
+}
+function hartPad(ctx, cx, cy, r) {
+  ctx.beginPath(); ctx.moveTo(cx, cy + r * 0.9);
+  ctx.bezierCurveTo(cx - r * 1.3, cy, cx - r * 0.9, cy - r * 1.1, cx, cy - r * 0.35);
+  ctx.bezierCurveTo(cx + r * 0.9, cy - r * 1.1, cx + r * 1.3, cy, cx, cy + r * 0.9);
+  ctx.closePath();
+}
+function raketTekenen(ctx, x, y, h, angleDeg, t, thrust, rollDeg, roer) {
   roer = (roer || 0) + Math.sin(t * 9) * 0.5;
   const s = h / 100;
   const steer = Math.max(-1, Math.min(1, (rollDeg != null ? rollDeg : angleDeg) / 30));
@@ -1271,7 +1417,7 @@ function drawRaket(ctx, x, y, h, angleDeg, t, thrust, rollDeg, roer) {
   };
   body();
   const bodyV = ctx.createLinearGradient(0, -44, 0, 34);
-  bodyV.addColorStop(0, '#7b2fe0'); bodyV.addColorStop(0.35, '#5a52f0'); bodyV.addColorStop(0.58, '#3a8ef0'); bodyV.addColorStop(0.72, '#b23aa8'); bodyV.addColorStop(1, '#e0307c');
+  S.romp.forEach(([k, c]) => bodyV.addColorStop(k, c));
   ctx.fillStyle = bodyV; ctx.fill();
   ctx.save(); ctx.clip();
   const bodyH = ctx.createLinearGradient(-14, 0, 14, 0);
@@ -1304,6 +1450,18 @@ function drawRaket(ctx, x, y, h, angleDeg, t, thrust, rollDeg, roer) {
       ctx.fillStyle = 'rgba(20,0,40,0.5)'; ctx.beginPath(); ctx.ellipse(xx + 0.2 * c, yy + 0.25, sz * 0.9 * c, sz * 0.9, 0, 0, Math.PI * 2); ctx.fill();
     }
   });
+  if (S.hartjes) {
+    [-0.75, 0, 0.75].forEach((d, i) => {
+      const th = rho + d, c = Math.cos(th);
+      if (c < 0.2) return;
+      const yy = 22, xx = Math.sin(th) * raketR(yy) * 0.92;
+      ctx.save(); ctx.translate(xx, yy); ctx.scale(c, 1);
+      hartPad(ctx, 0, 0, i === 1 ? 2.6 : 1.8);
+      ctx.fillStyle = 'rgba(255,240,250,0.95)'; ctx.fill();
+      ctx.strokeStyle = 'rgba(160,20,90,0.6)'; ctx.lineWidth = 0.35; ctx.stroke();
+      ctx.restore();
+    });
+  }
   ctx.restore();
   body(); ctx.strokeStyle = 'rgba(30,0,50,0.75)'; ctx.lineWidth = 0.9; ctx.stroke();
 
@@ -1331,9 +1489,10 @@ function drawRaket(ctx, x, y, h, angleDeg, t, thrust, rollDeg, roer) {
   lg.addColorStop(0, `rgba(255,240,190,${0.9 * blink})`); lg.addColorStop(1, 'rgba(255,200,120,0)');
   ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(0, -47.5, 9, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
-  ctx.beginPath(); ctx.arc(0, -47.5, 3, 0, Math.PI * 2);
+  if (S.hartjes) hartPad(ctx, 0, -47.2, 3.6); else { ctx.beginPath(); ctx.arc(0, -47.5, 3, 0, Math.PI * 2); }
   const bulb = ctx.createRadialGradient(-0.8, -48.4, 0.2, 0, -47.5, 3);
-  bulb.addColorStop(0, '#fffbe8'); bulb.addColorStop(1, `rgb(${230 + 25 * blink | 0},${170 + 60 * blink | 0},90)`);
+  if (S.hartjes) { bulb.addColorStop(0, '#fff0f8'); bulb.addColorStop(1, `rgb(255,${90 + 70 * blink | 0},${170 + 40 * blink | 0})`); }
+  else { bulb.addColorStop(0, '#fffbe8'); bulb.addColorStop(1, `rgb(${230 + 25 * blink | 0},${170 + 60 * blink | 0},90)`); }
   ctx.fillStyle = bulb; ctx.fill(); ctx.strokeStyle = '#6c7280'; ctx.lineWidth = 0.6; ctx.stroke();
 
   ctx.restore();
@@ -1631,7 +1790,8 @@ const LUCHT = {
   1: { stops: [[0, '#040824'], [0.32, '#0b1f66'], [0.7, '#1550be'], [1, '#2b7de8']], gloed: [[0.5, 1.17, 0.75, '150,215,255', 0.35]], sluier: '140,200,255', vignet: 0.38 },
   2: { stops: [[0, '#4aa6ff'], [0.38, '#2a86fb'], [0.78, '#1c60d6'], [1, '#1346af']], gloed: [[1.02, 0.02, 0.75, '255,205,170', 0.3], [0.1, 1.05, 0.8, '170,235,255', 0.28]], sluier: '235,248,255', vignet: 0.28 },
   3: { stops: [[0, '#130a2e'], [0.4, '#21134a'], [0.8, '#2d1a50'], [1, '#3b2168']], gloed: [[1.0, 0.05, 0.7, '255,215,160', 0.22], [0.15, 1.05, 0.8, '200,110,255', 0.24]], sluier: '220,170,255', vignet: 0.42 },
-  4: { stops: [[0, '#0a1f40'], [0.5, '#1a4d7a'], [1, '#0d2647']], gloed: [[0.5, 0.5, 0.7, '90,230,220', 0.14], [0.5, -0.1, 0.6, '150,200,255', 0.2]], sluier: '120,240,225', vignet: 0.45 }
+  4: { stops: [[0, '#0a1f40'], [0.5, '#1a4d7a'], [1, '#0d2647']], gloed: [[0.5, 0.5, 0.7, '90,230,220', 0.14], [0.5, -0.1, 0.6, '150,200,255', 0.2]], sluier: '120,240,225', vignet: 0.45 },
+  5: { stops: [[0, '#0a0420'], [0.4, '#1d0b40'], [0.8, '#3a1258'], [1, '#521a66']], gloed: [[0.5, 1.1, 0.8, '255,120,200', 0.22], [0.9, 0.0, 0.6, '170,110,255', 0.2]], sluier: '255,170,230', vignet: 0.45 }
 };
 const luchtCache = {};
 function luchtBasis(W, H, lv) {
@@ -1979,7 +2139,7 @@ function botsCirkels(x, y, h, a, zij) {
   }
   return out;
 }
-return { botsCirkels, drawRaket, drawRaketZij, drawMunt, drawVogel, drawSterren, drawLucht, drawNevels, drawPlaneet, drawMars, drawSaturnus, drawSteen, warmOp };
+return { RAKET_MEISJE, botsCirkels, drawRaket,drawRaketZij, drawMunt, drawVogel, drawSterren, drawLucht, drawNevels, drawPlaneet, drawMars, drawSaturnus, drawSteen, warmOp };
         })();
 
         // ── ITEMS: power-ups en bekers in code (spel, legenda, menu en naamvenster) ──
@@ -2751,7 +2911,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                     ctx.restore();
                 }
             }
-            drawSchietknop(ammo, t);
+            if (huidigLevel().schieten !== false) drawSchietknop(ammo, t);
             drawSchildMeter(invul, t);
             drawPopup(popup, t);
         }
@@ -2860,9 +3020,10 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             if (gameMode === 'menu') {
                 const card = kaartOnder(cx, cy);
                 menuHoverCard = card;
+                const overTab = hoofdstukTabOnder(cx, cy) > 0;
                 menuHoverBtn = cx > W / 2 - 120 && cx < W / 2 + 120 && cy > H - 75 && cy < H - 10;
                 const overTaal = (cx - TAAL_BTN.x) ** 2 + (cy - TAAL_BTN.y) ** 2 < TAAL_BTN.r ** 2;
-                canvas.style.cursor = (card > 0 || menuHoverBtn || overTaal) ? 'pointer' : 'default';
+                canvas.style.cursor = (card > 0 || menuHoverBtn || overTaal || overTab) ? 'pointer' : 'default';
             } else if (gameMode === 'levelIntro') {
                 introHoverBtn = cx > W / 2 - 115 && cx < W / 2 + 115 && cy > H - 112 && cy < H - 62;
                 introHoverMenu = cx > W / 2 - 105 && cx < W / 2 + 105 && cy > H - 52 && cy < H - 10;
@@ -2906,7 +3067,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 const cx = (t.clientX - rect.left) * (W / rect.width);
                 const cy = (t.clientY - rect.top) * (H / rect.height);
                 const sdx = cx - SHOOT_BTN.x, sdy = cy - SHOOT_BTN.y;
-                if (sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r) touchRight = true;
+                if (huidigLevel().schieten !== false && sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r) touchRight = true;
                 else touchLeft = true;
             }
         }
@@ -2919,7 +3080,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                     handleClick(cx, cy); break;
                 }
                 const sdx = cx - SHOOT_BTN.x, sdy = cy - SHOOT_BTN.y;
-                const onShoot = sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r;
+                const onShoot = huidigLevel().schieten !== false && sdx * sdx + sdy * sdy < SHOOT_BTN.r * SHOOT_BTN.r;
                 if (!onShoot && padTouchId === null) {
                     padLast = { x: cx, y: cy }; padTouchId = t.identifier;
                 }
@@ -3237,16 +3398,30 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
 
             ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.roundRect(40, 175, W - 80, 110, 14); ctx.fill();
             ctx.fillStyle = '#d0e8ff'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-            pasTekst(TX('menu.verhaal1'), W / 2, 193, W - 96);
-            pasTekst(TX('menu.verhaal2'), W / 2, 210, W - 96);
-            pasTekst(TX('menu.verhaal3'), W / 2, 225, W - 96);
-            ctx.fillStyle = '#FFD700'; ctx.font = 'bold 13px sans-serif';
-            pasTekst(TX('menu.verhaal4'), W / 2, 242, W - 96);
-            ctx.fillStyle = '#7090b0'; ctx.font = '12px sans-serif';
-            pasTekst(TX('menu.ondertitel'), W / 2, 260, W - 96);
+            const vk = menuHoofdstuk === 2 ? 'menu2.' : 'menu.';
+            pasTekst(TX(vk + 'verhaal1'), W / 2, 193, W - 96);
+            pasTekst(TX(vk + 'verhaal2'), W / 2, 210, W - 96);
+            pasTekst(TX(vk + 'verhaal3'), W / 2, 225, W - 96);
+            ctx.fillStyle = menuHoofdstuk === 2 ? '#ff9ad5' : '#FFD700'; ctx.font = 'bold 13px sans-serif';
+            pasTekst(TX(vk + 'verhaal4'), W / 2, 242, W - 96);
+            if (hoogsteHoofdstuk() >= 2) {
+                [1, 2].forEach(hs => {
+                    const tx = hs === 1 ? W / 2 - 4 - HS_TAB.w : W / 2 + 4, actief = hs === menuHoofdstuk;
+                    const kl = hs === 1 ? '#40E0D0' : '#ff6fb8';
+                    ctx.fillStyle = actief ? kl + '40' : 'rgba(255,255,255,0.06)';
+                    ctx.beginPath(); ctx.roundRect(tx, HS_TAB.y, HS_TAB.w, HS_TAB.h, 11); ctx.fill();
+                    ctx.strokeStyle = actief ? kl : 'rgba(255,255,255,0.2)'; ctx.lineWidth = actief ? 1.5 : 1;
+                    ctx.beginPath(); ctx.roundRect(tx, HS_TAB.y, HS_TAB.w, HS_TAB.h, 11); ctx.stroke(); ctx.lineWidth = 1;
+                    ctx.fillStyle = actief ? '#fff' : '#8098b8'; ctx.font = (actief ? 'bold ' : '') + '11px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(TX('menu.h' + hs), tx + HS_TAB.w / 2, HS_TAB.y + 15);
+                });
+            } else {
+                ctx.fillStyle = '#7090b0'; ctx.font = '12px sans-serif';
+                pasTekst(TX('menu.ondertitel'), W / 2, 260, W - 96);
+            }
 
             // Level preview cards
-            const lvls = LEVELS.map(l => ({ id: l.id, name: TX('lv' + l.id + '.naam'), sub: TX('lv' + l.id + '.kaart'), color: l.kleur, mode: l.mode, rescued: l.familie }));
+            const lvls = levelsVan(menuHoofdstuk).map(l => ({ id: l.id, name: TX('lv' + l.id + '.naam'), sub: TX('lv' + l.id + '.kaart'), color: l.kleur, mode: l.mode, rescued: l.familie, piloot: l.piloot }));
             // Bepaal welk level de "laatste behaalde" beker heeft (hoogste tier, hoogste id)
             const p2 = getProgress();
             let lastCupLid = 0, lastCupTier = 0;
@@ -3311,11 +3486,31 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                     }
                     ctx.restore();
                     ctx.filter = 'none'; ctx.globalAlpha = 1;
+                } else if (!beaten && lv.piloot) {
+                    const sheet = lv.piloot.n + '_bevrijd_spritesheet';
+                    if (imageStatus[sheet]) {
+                        ctx.save();
+                        if (!unlocked) { ctx.globalAlpha = 0.28; ctx.filter = 'grayscale(1) brightness(0.6)'; }
+                        drawAnimFrame(sheet, lv.piloot.frames[0], lx + 180, ly + 4, 34, 52);
+                        ctx.restore();
+                    }
                 } else if (hasCup) {
                     const animateCup = lv.id === lastCupLid;
                     ITEMS.drawBeker(ctx, getCupTier(lv.id, best), lx + 140, ly + 8, 80, 80, frameCount / 60, animateCup);
                 }
                 ctx.restore();
+            });
+            (KOMENDE_KAARTEN[menuHoofdstuk] || []).forEach((n, j) => {
+                const i = lvls.length + j;
+                if (i > 3) return;
+                const { x: lx, y: ly, w: kw, h: kh } = kaartPlek(i);
+                ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.roundRect(lx, ly, kw, kh, 12); ctx.fill();
+                ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+                ctx.beginPath(); ctx.roundRect(lx, ly, kw, kh, 12); ctx.stroke(); ctx.restore();
+                ctx.fillStyle = '#505078'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'left';
+                pasTekst(`${lvls.length ? lvls[0].id + i : i + 1}. ${TX('kh.' + n)}`, lx + 12, ly + 26, 196);
+                ctx.font = '11px sans-serif'; pasTekst(TX('menu.binnenkort'), lx + 12, ly + 46, 196);
+                ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🔒', lx + 190, ly + 52);
             });
 
             // Draw rescued family (larger, between cards and play button)
@@ -3331,7 +3526,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 if (hasBeatenGoal(l.id)) family.push({ k: l.familie.n + '_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: lastBeaten === l.id });
             });
 
-            const laatsteKaart = kaartPlek(LEVELS.length - 1);
+            const laatsteKaart = kaartPlek(3);
             const cardsBottom = laatsteKaart.y + laatsteKaart.h;
             const btnTop = H - 70;
             const gapH = btnTop - cardsBottom;
@@ -3413,11 +3608,13 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             if (gameMode === 'menu') {
                 const tdx = cx - TAAL_BTN.x, tdy = cy - TAAL_BTN.y;
                 if (tdx * tdx + tdy * tdy < TAAL_BTN.r * TAAL_BTN.r) { wisselTaal(); return; }
+                const tab = hoofdstukTabOnder(cx, cy);
+                if (tab) { menuHoofdstuk = tab; menuHoverCard = 0; return; }
                 const kaart = kaartOnder(cx, cy);
                 if (kaart && (isUnlocked(kaart) || devUnlocked)) { selectLevel(kaart, devUnlocked); return; }
                 // Big play button → start level intro
                 if (cx > W / 2 - 120 && cx < W / 2 + 120 && cy > H - 75 && cy < H - 10) {
-                    selectLevel(LEVELS.map(l => l.id).filter(isUnlocked).pop() || 1);
+                    selectLevel(levelsVan(menuHoofdstuk).map(l => l.id).filter(isUnlocked).pop() || LEVELS[0].id);
                     return;
                 }
                 if (!isMobile) {
@@ -3479,6 +3676,14 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(0, 17); ctx.stroke();
                 ctx.shadowBlur = 0; ctx.lineWidth = 1;
                 ctx.fillStyle = 'rgba(255,80,80,0.25)'; ctx.fillRect(-8, -18, 16, 36);
+            } else if (type === 'trek') {
+                ITEMS.drawItem(ctx, 'black', 0, 0, 44, frameCount / 60, 0);
+                ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(255,70,90,0.8)'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1;
+            } else if (type === 'bonus') {
+                ctx.strokeStyle = 'rgba(255,154,213,0.6)'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.ellipse(0, 0, 24, 10, -0.3, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1;
+                drawCoin({ x: -18, y: -18, type: 'gold', seed: 0 });
             } else if (type === 'ring') {
                 ctx.strokeStyle = '#d4a853'; ctx.lineWidth = 3;
                 ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.stroke();
@@ -3713,7 +3918,8 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 const img = images[d.sprite];
                 ctx.shadowColor = 'rgba(255,215,0,0.6)'; ctx.shadowBlur = 30;
                 if (d.frames) {
-                    const fi = Math.floor(cutsceneTimer / (60 / d.fps)) % d.frames;
+                    const stap = Math.floor(cutsceneTimer / (60 / d.fps)) % d.frames;
+                    const fi = d.frameLijst ? d.frameLijst[stap] : stap;
                     const cfg = ANIM_CONFIGS[d.sprite];
                     if (cfg && cfg.cols) {
                         // Bereken werkelijke src-afmetingen per frame (zelfde als tester)
@@ -3785,9 +3991,38 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         function advanceAfterCutscene() {
             const nextId = currentLevelId + 1;
             if (levelDef(nextId)) { unlockLevel(nextId); }
+            kiesHoofdstuk();
             gameMode = 'menu';
             setMusicActive(false);
             setTimeout(() => setMusicActive(true), 200);
+        }
+
+        // Besturing voor verticale levels (1 en 5): touchpad op mobiel, muis of pijltjes op desktop
+        function stuurVerticaal(SPEED) {
+            if (isMobile) {
+                padVx += (padDelta.x - padVx) * 0.3;
+                rocket.angle = Math.max(-20, Math.min(20, padVx * 3.2));
+                if (padDelta.x !== 0 || padDelta.y !== 0) {
+                    rocket.x = Math.max(0, Math.min(W - 50, rocket.x + padDelta.x));
+                    rocket.y = Math.max(0, Math.min(H - 80, rocket.y + padDelta.y));
+                    padDelta.x = 0; padDelta.y = 0;
+                }
+            } else if (touchPos) {
+                const dx = touchPos.x - (rocket.x + 2), dy = touchPos.y - (rocket.y + 16);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > 6) {
+                    const spd = Math.min(SPEED, dist);
+                    rocket.x = Math.max(0, Math.min(W - 50, rocket.x + (dx / dist) * spd));
+                    rocket.y = Math.max(0, Math.min(H - 80, rocket.y + (dy / dist) * spd));
+                    rocket.angle = Math.max(-20, Math.min(20, dx * 0.18));
+                } else { rocket.angle = 0; }
+            } else {
+                if (keys['ArrowLeft'] && rocket.x > 0) { rocket.x -= SPEED; rocket.angle = -20; }
+                else if (keys['ArrowRight'] && rocket.x < W - 50) { rocket.x += SPEED; rocket.angle = 20; }
+                else { rocket.angle = 0; }
+                if (keys['ArrowUp'] && rocket.y > 0) rocket.y -= SPEED;
+                if (keys['ArrowDown'] && rocket.y < H - 80) rocket.y += SPEED;
+            }
         }
 
         // ── LEVEL 1: OPSTIJGEN (FLIGHT) — kopie van RocketManFlight ────
@@ -3815,31 +4050,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 }
             }
 
-            // Input — touchpad (mobiel) of pijltjes/muis (desktop)
-            if (isMobile) {
-                padVx += (padDelta.x - padVx) * 0.3;
-                rocket.angle = Math.max(-20, Math.min(20, padVx * 3.2));
-                if (padDelta.x !== 0 || padDelta.y !== 0) {
-                    rocket.x = Math.max(0, Math.min(W - 50, rocket.x + padDelta.x));
-                    rocket.y = Math.max(0, Math.min(H - 80, rocket.y + padDelta.y));
-                    padDelta.x = 0; padDelta.y = 0;
-                }
-            } else if (touchPos) {
-                const dx = touchPos.x - (rocket.x + 2), dy = touchPos.y - (rocket.y + 16);
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist > 6) {
-                    const spd = Math.min(SPEED, dist);
-                    rocket.x = Math.max(0, Math.min(W - 50, rocket.x + (dx / dist) * spd));
-                    rocket.y = Math.max(0, Math.min(H - 80, rocket.y + (dy / dist) * spd));
-                    rocket.angle = Math.max(-20, Math.min(20, dx * 0.18));
-                } else { rocket.angle = 0; }
-            } else {
-                if (keys['ArrowLeft'] && rocket.x > 0) { rocket.x -= SPEED; rocket.angle = -20; }
-                else if (keys['ArrowRight'] && rocket.x < W - 50) { rocket.x += SPEED; rocket.angle = 20; }
-                else { rocket.angle = 0; }
-                if (keys['ArrowUp'] && rocket.y > 0) rocket.y -= SPEED;
-                if (keys['ArrowDown'] && rocket.y < H - 80) rocket.y += SPEED;
-            }
+            stuurVerticaal(SPEED);
 
             handleShield();
             rocket.angleDisplay += (rocket.angle - rocket.angleDisplay) * (isMobile ? 0.14 : 0.12);
@@ -3972,6 +4183,198 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             }
 
             if (lvlState === 'waiting') drawWaitingHint('flight');
+        }
+
+        // ── LEVEL 5: VLIEGLES MEISJE (FLIGHT + ZWARTE GATEN) ───────
+        // Zwarte gaten drijven omlaag en trekken aan de raket. Binnen de rode ring (straal r) trekt het gat harder
+        // dan de raket kan vliegen; de kern (0,42·r) slokt de raket op. Goud in een baan rond een gat is +10.
+        let gaten5 = [], gatTimer5 = 0, slok5 = null, les5 = { gehad: {}, rij: [], tekst: '', timer: 0 };
+        const LES_DUUR = 260, SLOK_DUUR = 40;
+        function initLevel5() {
+            rocket = { x: W / 2 - 20, y: H - 160, vx: 0, vy: 0, angle: 0, invul: 0, angleDisplay: 0 };
+            stars1 = makeStars(60);
+            nebulae1 = [
+                { x: W * 0.25, y: H * 0.2, r: 130, hue: 300, sp: 0.07 },
+                { x: W * 0.8, y: H * 0.5, r: 100, hue: 330, sp: 0.09 },
+                { x: W * 0.4, y: H * 0.85, r: 120, hue: 270, sp: 0.06 },
+            ];
+            setMelody([330, 392, 440, 523, 440, 392, 349, 294], 290);
+            setMusicActive(true);
+            lvlTimeout = 0;
+            gaten5 = []; gatTimer5 = 120; slok5 = null;
+            les5 = { gehad: {}, rij: [], tekst: '', timer: 0 };
+        }
+        function geefLes(k) {
+            if (les5.gehad[k]) return;
+            les5.gehad[k] = true; les5.rij.push(TX('les.' + k));
+        }
+        function spawnGat5() {
+            const r = 34 + Math.random() * 14 + Math.min(10, lvlFrames / 700);
+            const g = { x: 70 + Math.random() * (W - 140), y: -r * 1.6, r, vx: (Math.random() - 0.5) * 0.5, seed: Math.random() * 6 };
+            gaten5.push(g);
+            for (let k = 0; k < 5; k++) coins.push({ type: 'gold', bonus: true, gat: g, hoek: k * Math.PI * 2 / 5, baan: r * 1.8, x: -99, y: -99, dead: false });
+        }
+        function updateLevel5() {
+            const SPEED = 7;
+            if (lvlState === 'waiting') {
+                if (keys['Space'] || keys['ArrowUp'] || touchLeft || touchRight) { lvlState = 'playing'; geefLes('1'); }
+                return;
+            }
+            if (lvlState !== 'playing') return;
+            lvlFrames++;
+            if (les5.timer > 0) les5.timer--;
+            else if (les5.rij.length) { les5.tekst = les5.rij.shift(); les5.timer = LES_DUUR; }
+
+            const total = score + coinScore;
+            lvlSpeed = 3 + lvlFrames / 1500 + total / 3000;
+            if (clockBrake > 0) clockBrake = Math.max(0, clockBrake - 0.000055);
+            effSpeed = lvlSpeed * (1 - clockBrake);
+
+            if (slok5) {
+                slok5.t++;
+                rocket.x += (slok5.g.x - 25 - rocket.x) * 0.12;
+                rocket.y += (slok5.g.y - 25 - rocket.y) * 0.12;
+                if (slok5.t >= SLOK_DUUR) {
+                    triggerDeath();
+                    particles = []; explosions = []; fireParticles = []; screenShake = 10;
+                    popup = { text: '🌀 ' + TX('pop.opgeslokt'), timer: 170, color: '#ff6fb8' };
+                }
+                return;
+            }
+
+            stuurVerticaal(SPEED);
+
+            const rp = { x: rocket.x + 25, y: rocket.y + 25 };
+            let trek = 0;
+            gaten5.forEach(g => {
+                g.y += effSpeed * 0.6; g.x += g.vx;
+                if (g.x < g.r || g.x > W - g.r) g.vx = -g.vx;
+                const dx = g.x - rp.x, dy = g.y - rp.y, d = Math.hypot(dx, dy) || 1, trekR = g.r * 3.2;
+                if (d < trekR) {
+                    const f = 7.5 * Math.pow(g.r / Math.max(d, g.r * 0.3), 1.5) * Math.min(1, (trekR - d) / g.r);
+                    rocket.x += dx / d * f; rocket.y += dy / d * f;
+                    trek = Math.max(trek, f);
+                    if (d < g.r * 1.7) geefLes('3');
+                }
+                if (!slok5 && raketRaakt(g.x, g.y, g.r * 0.42)) {
+                    slok5 = { g, t: 0 }; playTone(70, 1.0, 'sawtooth', 0.25);
+                }
+            });
+            rocket.x = Math.max(0, Math.min(W - 50, rocket.x));
+            rocket.y = Math.max(0, Math.min(H - 80, rocket.y));
+            if (trek > 2.5) geefLes('2');
+
+            handleShield();
+            rocket.angleDisplay += (rocket.angle - rocket.angleDisplay) * (isMobile ? 0.14 : 0.12);
+            spawnFireRaket();
+
+            gatTimer5--;
+            if (gatTimer5 <= 0 && gaten5.length < 2) {
+                spawnGat5();
+                gatTimer5 = Math.max(150, 320 - lvlFrames / 20);
+                if (les5.gehad['1'] && lvlFrames > 400) geefLes('4');
+            }
+
+            if (lvlFrames % 100 === 0) {
+                const r = Math.random();
+                const type = r < 0.08 ? 'blue' : (r < 0.15 && effSpeed > 4.5) ? 'clock' : 'gold';
+                coins.push({ x: Math.random() * (W - 36), y: -40, type, dead: false });
+            }
+
+            coins.forEach(c => {
+                if (c.dead) return;
+                if (c.gat) {
+                    c.hoek += 0.025;
+                    c.x = c.gat.x + Math.cos(c.hoek) * c.baan - 18; c.y = c.gat.y + Math.sin(c.hoek) * c.baan - 18;
+                } else c.y += effSpeed;
+                if (rocket.x < c.x + 36 && rocket.x + 50 > c.x && rocket.y < c.y + 36 && rocket.y + 50 > c.y) {
+                    collectCoin(c);
+                    if (c.bonus) { coinScore += 5; popup = { text: '+10', timer: 50, color: '#ff9ad5' }; }
+                }
+            });
+
+            gaten5 = gaten5.filter(g => g.y - g.r * 3 < H);
+            coins = coins.filter(c => !c.dead && c.y < H + 50);
+
+            nextMilestoneIdx = checkMilestones(score + coinScore, nextMilestoneIdx, popup);
+
+            if (score + coinScore >= 50 && !levelGoalBeaten) {
+                levelGoalBeaten = true;
+                popup = { text: '⭐ ' + TX('pop.doel'), timer: 160, color: '#FFD700' };
+                playBonus();
+                geefLes('goed');
+            }
+
+            if (goalWasPreviouslyBeaten && !newRecordAnnounced) {
+                const prevBest = (getProgress()[currentLevelId] && getProgress()[currentLevelId].best) || 0;
+                if (prevBest > 0 && score + coinScore > prevBest) {
+                    newRecordAnnounced = true;
+                    popup = { text: TX('pop.record'), timer: 200, color: '#FFD700', img: 'highscore' };
+                    playRecord();
+                }
+            }
+        }
+        function tekenGat5(g, t) {
+            const trekR = g.r * 3.2;
+            const z = ctx.createRadialGradient(g.x, g.y, g.r, g.x, g.y, trekR);
+            z.addColorStop(0, 'rgba(150,60,255,0.16)'); z.addColorStop(1, 'rgba(150,60,255,0)');
+            ctx.fillStyle = z; ctx.beginPath(); ctx.arc(g.x, g.y, trekR, 0, Math.PI * 2); ctx.fill();
+            ITEMS.drawItem(ctx, 'black', g.x, g.y, g.r * 2, t, g.seed);
+            ctx.save();
+            ctx.setLineDash([8, 6]); ctx.lineDashOffset = -t * 20;
+            ctx.strokeStyle = 'rgba(60,0,10,0.6)'; ctx.lineWidth = 4.5;
+            ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = `rgba(255,60,80,${0.75 + 0.25 * Math.sin(t * 4 + g.seed)})`; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2); ctx.stroke();
+            ctx.restore();
+        }
+        function tekenLes5() {
+            if (les5.timer <= 0 || !les5.tekst) return;
+            const a = Math.min(1, les5.timer / 20, (LES_DUUR - les5.timer) / 15);
+            const bx = 14, bw = W - 28, bh = 62, by = H - 128;
+            ctx.save(); ctx.globalAlpha = a;
+            ctx.fillStyle = 'rgba(10,6,40,0.82)'; ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 14); ctx.fill();
+            ctx.strokeStyle = 'rgba(64,224,208,0.6)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 14); ctx.stroke();
+            const img = images.rocketman;
+            let tx = bx + 14;
+            if (imageStatus.rocketman && img.naturalHeight) {
+                const ih = bh + 18, iw = ih * img.naturalWidth / img.naturalHeight;
+                ctx.drawImage(img, bx + 4, by + bh - ih, iw, ih); tx = bx + iw + 12;
+            }
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#40E0D0'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(TX('les.wie'), tx, by + 20);
+            ctx.fillStyle = '#fff'; ctx.font = '13px sans-serif';
+            const maxW = bx + bw - 12 - tx, woorden = les5.tekst.split(' ');
+            let regel = '', y = by + 38;
+            woorden.forEach(w => {
+                const test = regel ? regel + ' ' + w : w;
+                if (ctx.measureText(test).width > maxW && regel) { ctx.fillText(regel, tx, y); regel = w; y += 16; }
+                else regel = test;
+            });
+            if (regel) ctx.fillText(regel, tx, y);
+            ctx.restore();
+        }
+        function drawLevel5() {
+            const tG = frameCount / 60;
+            GFX.drawLucht(ctx, W, H, tG, 5);
+            GFX.drawNevels(ctx, nebulae1, W, H, 'v', tG);
+            GFX.drawSterren(ctx, stars1, tG, W, H);
+            gaten5.forEach(g => tekenGat5(g, tG));
+            coins.forEach(c => { if (!c.dead) drawCoin(c); });
+            if (slok5 && slok5.t >= SLOK_DUUR) explosions = [];
+            drawParticles();
+            drawFire();
+            if (gameMode !== 'dying') {
+                if (slok5) {
+                    const k = Math.max(0.05, 1 - slok5.t / SLOK_DUUR);
+                    ctx.save(); ctx.translate(slok5.g.x, slok5.g.y); ctx.rotate(slok5.t * 0.25); ctx.scale(k, k); ctx.translate(-slok5.g.x, -slok5.g.y);
+                    drawSpelerRaket(tG); ctx.restore();
+                } else drawSpelerRaket(tG);
+            }
+            drawHUD(score + coinScore, ammo, rocket.invul, popup);
+            if (!levelGoalBeaten) drawBalk(W / 2, H - 30, 200, 14, (score + coinScore) / 50, '#ff6fb8', TX('balk.doel', { n: 50 }));
+            tekenLes5();
+            if (lvlState === 'waiting') drawWaitingHint('les');
         }
 
         // ── LEVEL 2: MARS ASTEROIDENVELD (SPACE) ───────────────────
@@ -4781,7 +5184,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             ctx.restore();
         }
         function drawWaitingHint(mode) {
-            const text = TX(mode === 'space' ? 'hint.space' : 'hint.flight');
+            const text = TX('hint.' + mode);
             const p = 0.5 + 0.5 * Math.sin(frameCount * 0.06);
             glasPil(W / 2 - 175, H / 2 + 50, 350, 46, 23);
             ctx.save(); ctx.strokeStyle = `rgba(255,200,120,${0.25 + 0.35 * p})`; ctx.lineWidth = 1.5;
@@ -4929,6 +5332,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 if (currentLevelId === 1) birds.forEach(b => cirkel(b.x + 15, b.y + 16, 15, '#ff5050'));
                 coins.forEach(c => { if (!c.dead && c.type === 'red') cirkel(c.x + 18, c.y + 18, 16, '#ff5050'); });
                 if (currentLevelId === 3) rings.forEach(rg => { if (rg.x < -80 || rg.x > W + 80) return; rg.topRocks.concat(rg.botRocks).forEach(k => { if (!steenVerstopt(rg, k)) cirkel(rg.x + 19 + k.dx, k.y, k.size * 0.62, '#ff9050'); }); });
+                if (currentLevelId === 5) gaten5.forEach(g => { cirkel(g.x, g.y, g.r * 0.42, '#ff5050'); cirkel(g.x, g.y, g.r, '#ffb050'); cirkel(g.x, g.y, g.r * 3.2, '#b080ff'); });
                 if (currentLevelId === 4 && laserPhase === 'fire') { const l = lasers[laserIdx]; ctx.strokeStyle = '#ff5050'; ctx.strokeRect(l.x - 10, 0, 20, H); }
                 ctx.restore();
             }
@@ -4947,8 +5351,11 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
 
         // ── Boot ───────────────────────────────────────────────────
         unlockLevel(1);
+        if (hasBeatenGoal(4)) unlockLevel(5);
+        kiesHoofdstuk();
         function cutsceneVoor(id) {
-            const def = levelDef(id), f = def && def.familie;
+            const def = levelDef(id), f = def && def.familie, pl = def && def.piloot;
+            if (pl) return { headline: TX('cs' + id + '.kop') + ' ' + pl.emoji, sprite: pl.n + '_bevrijd_spritesheet', emoji: pl.emoji, rescued: TX('cs' + id + '.zegt'), buff: TX('cs' + id + '.buff'), frames: pl.frames.length, frameLijst: pl.frames, cols: 3, rows: 2, fps: 3 };
             if (!f) return { headline: TX('voltooid'), emoji: '🎉', rescued: '', buff: '' };
             return { headline: TX('cs' + id + '.kop') + ' ' + f.emoji, sprite: f.n + '_bevrijd_spritesheet', emoji: f.emoji, rescued: TX('cs' + id + '.zegt'), buff: TX('cs' + id + '.buff'), frames: 6, cols: 3, rows: 2, fps: 8 };
         }

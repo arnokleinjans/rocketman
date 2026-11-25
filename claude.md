@@ -139,7 +139,20 @@ Teksten blijven in de vertaaltabel, per taal: `lv<id>.naam`, `.kaart`, `.verhaal
 3. Voeg de `lv5.…`-teksten toe in NL en EN.
 4. Zonder `familie` toont de kaart geen komeet, komt er niemand bij in de familierij en geeft de cutscene "Voltooid!".
 
-Let op: de kaarten staan in een raster van 2 breed (`kaartPlek(i)`). Bij 5 of meer levels schuift de familierij omlaag en wordt het menu te vol. Dat moet bij het eerste nieuwe level opnieuw ingedeeld worden.
+### Hoofdstukken
+Elk level heeft `hoofdstuk` (1 of 2). Het menu toont één hoofdstuk tegelijk, vier kaarten in een raster van 2 breed (`kaartPlek(i)`, index binnen het hoofdstuk). `menuHoofdstuk` bepaalt welk hoofdstuk zichtbaar is. Het wordt gezet bij opstarten en na een cutscene (`kiesHoofdstuk()`: het hoogste hoofdstuk met een ontgrendeld level), en met de tabs Hoofdstuk 1 / Hoofdstuk 2 in het verhaalvak. De tabs verschijnen pas als hoofdstuk 2 open is; daarvoor staat er de ondertitel.
+- Hoofdstuk 1: de familie bevrijden uit kometen (level 1-4), verhaal `menu.verhaal1-4`.
+- Hoofdstuk 2: vliegles van Rocketman, verhaal `menu2.verhaal1-4`. Dezelfde volgorde als hoofdstuk 1: meisje, mama, neef, zoon.
+- `KOMENDE_KAARTEN` geeft lege kaarten met "Binnenkort" voor levels die nog niet bestaan. Haal een naam weg zodra dat level in `LEVELS` staat.
+- Bij opstarten: wie level 4 al had, krijgt level 5 ontgrendeld.
+
+### Velden voor hoofdstuk 2
+- `piloot: { n, emoji, frames }`: wie er vliegt. De kaart toont dan het bevrijd-sprite in plaats van een komeet, en de cutscene speelt alleen de genoemde frames van `<n>_bevrijd_spritesheet`. Voor het meisje zijn dat 0, 1 en 5, de frames zonder kapotte komeet.
+- `raketStijl`: naam van een stijl in `GFX` (bijv. `'RAKET_MEISJE'`). `GFX.drawRaket` krijgt die als laatste argument. `RAKET_STD` zijn de kleuren van Rocketman. Een stijl bepaalt romp, vinnen, rand, handgrepen, pak, mouwen, handschoenen, `piloot` (`'prof'` of `'meisje'`, het hoofd in de patrijspoort) en `hartjes` (hartjes op de romp en als neuslamp).
+- `schieten: false`: geen schietknop en geen schiet-aanraakvlak.
+
+### Level 5: Vliegles Meisje
+Verticaal zoals level 1 (`stuurVerticaal()` is de gedeelde besturing). Zwarte gaten (`gaten5`) drijven omlaag, maximaal 2 tegelijk. Per gat met straal `r`: trekzone 3,2·r, rode stippelring op r (daarbinnen trekt het gat harder dan de raket vliegt), kern 0,42·r slokt de raket op (`slok5`, 40 beelden draaien en krimpen, dan `triggerDeath`). Vijf gouden munten draaien in een baan om elk gat, +10 per munt. Rocketman geeft lessen in een spreekballon (`geefLes`, teksten `les.1-4` en `les.goed`). Debugscherm (D) toont kern, ring en trekzone.
 
 Nog niet in de lijst, omdat ze alleen binnen één level spelen: `blackHoleTimer3`, de pop-up `pop.mamaVrij` en de botsingscirkels in het debugscherm (toets D).
 
