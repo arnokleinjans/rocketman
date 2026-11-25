@@ -706,21 +706,42 @@
             ctx.drawImage(img, srcX, srcY, srcW, srcH, dx, dy, dw, dh);
         }
 
-        const MEDALS = {
-            1: [100, 250, 500],   // doel: 50
-            2: [150, 375, 750],   // doel: 75
-            3: [200, 500, 1000],   // doel: 100
-            4: [300, 750, 1500],   // doel: 150
-        };
+        // Eén blok per level. Teksten komen uit TX('lv<id>.…') en TX('cs<id>.…').
+        // familie is optioneel: een level zonder familie toont geen komeet op de kaart en geen familielid in het menu.
+        const LEVELS = [
+            { id: 1, mode: 'FLIGHT', kleur: '#4a9eff', medailles: [100, 250, 500],
+              legenda: ['gold', 'ammo', 'green', 'blue', 'red', 'black', 'clock', 'comet', 'bird'],
+              familie: { n: 'meisje', emoji: '👧', c: 4, sheet: 'meisje_komeet_spritesheet' },
+              init: initLevel1, update: updateLevel1, teken: drawLevel1 },
+            { id: 2, mode: 'SPACE', kleur: '#c85a2a', medailles: [150, 375, 750],
+              legenda: ['gold', 'ammo', 'green', 'blue', 'red', 'black', 'clock', 'comet'],
+              familie: { n: 'mama', emoji: '👩', c: 3, sheet: 'mama_komeet_spritesheet' },
+              init: initLevel2, update: updateLevel2, teken: drawLevel2 },
+            { id: 3, mode: 'SPACE', kleur: '#d4a853', medailles: [200, 500, 1000],
+              legenda: ['gold', 'ammo', 'green', 'blue', 'black', 'clock', 'comet', 'ring'],
+              familie: { n: 'neef', emoji: '🧒', c: 3, sheet: 'neef_komeet_spritesheet' },
+              init: initLevel3, update: updateLevel3, teken: drawLevel3 },
+            { id: 4, mode: 'FLIGHT', kleur: '#40E0D0', medailles: [300, 750, 1500],
+              legenda: ['ammo', 'keyFragment', 'clock', 'green', 'blue', 'laser'],
+              familie: { n: 'zoon', emoji: '👦', c: 3, sheet: 'zoon_komeet_spritesheet' },
+              init: initLevel4, update: updateLevel4, teken: drawLevel4 },
+        ];
+        function levelDef(id) { return LEVELS.find(l => l.id === id); }
+        function kaartPlek(i) { return { x: 20 + (i % 2) * 235, y: 285 + Math.floor(i / 2) * 108, w: 220, h: 95 }; }
+        function kaartOnder(cx, cy) {
+            const i = LEVELS.findIndex((lv, j) => { const k = kaartPlek(j); return cx > k.x && cx < k.x + k.w && cy > k.y && cy < k.y + k.h; });
+            return i < 0 ? 0 : LEVELS[i].id;
+        }
+        function huidigLevel() { return levelDef(currentLevelId) || LEVELS[0]; }
         function getMedalEmoji(lid, score) {
-            const m = MEDALS[lid];
+            const m = levelDef(lid) && levelDef(lid).medailles;
             if (!m || score < m[0]) return '';
             if (score < m[1]) return '🥉';
             if (score < m[2]) return '🥈';
             return '🥇';
         }
         function getCupTier(lid, score) {
-            const m = MEDALS[lid];
+            const m = levelDef(lid) && levelDef(lid).medailles;
             if (!m || score < m[0]) return 0;
             if (score < m[1]) return 1;
             if (score < m[2]) return 2;
@@ -733,9 +754,7 @@
         function getTotalScore() {
             const p = getProgress();
             let tot = 0;
-            for (let i = 1; i <= 4; i++) {
-                if (p[i] && p[i].best) tot += p[i].best;
-            }
+            LEVELS.forEach(({ id }) => { if (p[id] && p[id].best) tot += p[id].best; });
             return tot;
         }
         function isUnlocked(lid) {
@@ -796,7 +815,7 @@
             fireParticles = fireParticles.filter(p => p.life > 0);
         }
         const RAKET_H = 140, RAKET_H_SPACE = 118, RAKET_KANTEL = 1.5;
-        function ruimteLevel() { return currentLevelId === 2 || currentLevelId === 3; }
+        function ruimteLevel() { return huidigLevel().mode === 'SPACE'; }
         function raketPose() {
             if (ruimteLevel()) return { x: rocket.x + 30, y: rocket.y + 20, a: 90 + (rocket.angleDisplay || 0), h: RAKET_H_SPACE, roll: null, zij: true };
             return { x: rocket.x + 25, y: rocket.y + 25, a: rocket.angleDisplay * RAKET_KANTEL, h: RAKET_H, roll: null };
@@ -2839,12 +2858,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             const cx = (e.clientX - rect.left) * (W / rect.width);
             const cy = (e.clientY - rect.top) * (H / rect.height);
             if (gameMode === 'menu') {
-                let card = 0;
-                const cardDefs = [{ id: 1, col: 0, row: 0 }, { id: 2, col: 1, row: 0 }, { id: 3, col: 0, row: 1 }, { id: 4, col: 1, row: 1 }];
-                for (const lv of cardDefs) {
-                    const lx = 20 + lv.col * 235, ly = 285 + lv.row * 108;
-                    if (cx > lx && cx < lx + 220 && cy > ly && cy < ly + 95) { card = lv.id; break; }
-                }
+                const card = kaartOnder(cx, cy);
                 menuHoverCard = card;
                 menuHoverBtn = cx > W / 2 - 120 && cx < W / 2 + 120 && cy > H - 75 && cy < H - 10;
                 const overTaal = (cx - TAAL_BTN.x) ** 2 + (cy - TAAL_BTN.y) ** 2 < TAAL_BTN.r ** 2;
@@ -3096,58 +3110,61 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             shieldTickTimer = 0; nextMilestoneIdx = 0; shootCooldown = 0;
             clockBrake = 0; clockSpawnTimer = 700;
             resetParticles();
-
-            if (id === 1) {
-                rocket = { x: W / 2 - 20, y: H - 160, vx: 0, vy: 0, angle: 0, invul: 0, angleDisplay: 0 };
-                stars1 = makeStars(50);
-                nebulae1 = [
-                    { x: W * 0.20, y: H * 0.15, r: 120, hue: 200, sp: 0.06 },
-                    { x: W * 0.80, y: H * 0.40, r: 90, hue: 260, sp: 0.09 },
-                    { x: W * 0.50, y: H * 0.65, r: 110, hue: 170, sp: 0.07 },
-                    { x: W * 0.15, y: H * 0.82, r: 80, hue: 280, sp: 0.08 },
-                ];
-                planet1 = { x: W * 0.78, y: H * 0.22, r: 42, hue: 28, sp: 0.04 };
-                setMelody([262, 294, 330, 349, 392, 349, 330, 294], 300);
-                setMusicActive(true);
-                lvlTimeout = 0;
-            } else if (id === 2) {
-                rocket = { x: 80, y: H / 2 - 20, vx: 0, vy: -0.1, angle: 0, invul: 0, angleDisplay: 0, roer: 0 };
-                stars2 = makeStars(60);
-                nebulae2 = [
-                    { x: W * 0.25, y: H * 0.2, r: 150, hue: 195, sat: 60, light: 88, a: 0.12, sp: 0.18 },
-                    { x: W * 0.85, y: H * 0.6, r: 120, hue: 210, sat: 55, light: 90, a: 0.1, sp: 0.25 },
-                    { x: W * 0.45, y: H * 0.85, r: 170, hue: 185, sat: 60, light: 85, a: 0.11, sp: 0.14 },
-                ];
-                setMelody([196, 220, 246, 261, 293, 261, 246, 220], 280);
-                setMusicActive(true);
-                lvlTimeout = 60 * 60;
-                lvlSpeed = 3.5; effSpeed = 3.5;
-            } else if (id === 3) {
-                rocket = { x: 80, y: H / 2 - 20, vx: 0, vy: -0.1, angle: 0, invul: 0, angleDisplay: 0, roer: 0 };
-                stars2 = makeStars(70);
-                nebulae2 = [
-                    { x: W * 0.2, y: H * 0.3, r: 150, hue: 290, sat: 70, light: 58, a: 0.16, sp: 0.16 },
-                    { x: W * 0.75, y: H * 0.7, r: 130, hue: 320, sat: 70, light: 60, a: 0.13, sp: 0.22 },
-                    { x: W * 0.5, y: H * 0.1, r: 110, hue: 255, sat: 60, light: 62, a: 0.12, sp: 0.12 },
-                ];
-                setMelody([174, 196, 220, 246, 261, 246, 220, 196], 260);
-                setMusicActive(true);
-                lvlTimeout = 90 * 60;
-                lvlSpeed = 3.2; effSpeed = 3.2;
-                setupRings();
-            } else if (id === 4) {
-                rocket = { x: W / 2 - 20, y: H - 160, vx: 0, vy: 0, angle: 0, invul: 0, angleDisplay: 0 };
-                stars1 = makeStars(50);
-                setMelody([262, 294, 330, 349, 392, 349, 330, 294], 260);
-                setMusicActive(true);
-                lvlDuration = 45 * 60;
-                laserTimer = 0; laserIdx = 0; laserPhase = 'cool';
-                setupLasers();
-                setupRuines();
-                setupKeyFragments();
-            }
+            huidigLevel().init();
             GFX.warmOp();
             initAudio();
+        }
+        function initLevel1() {
+            rocket = { x: W / 2 - 20, y: H - 160, vx: 0, vy: 0, angle: 0, invul: 0, angleDisplay: 0 };
+            stars1 = makeStars(50);
+            nebulae1 = [
+                { x: W * 0.20, y: H * 0.15, r: 120, hue: 200, sp: 0.06 },
+                { x: W * 0.80, y: H * 0.40, r: 90, hue: 260, sp: 0.09 },
+                { x: W * 0.50, y: H * 0.65, r: 110, hue: 170, sp: 0.07 },
+                { x: W * 0.15, y: H * 0.82, r: 80, hue: 280, sp: 0.08 },
+            ];
+            planet1 = { x: W * 0.78, y: H * 0.22, r: 42, hue: 28, sp: 0.04 };
+            setMelody([262, 294, 330, 349, 392, 349, 330, 294], 300);
+            setMusicActive(true);
+            lvlTimeout = 0;
+        }
+        function initLevel2() {
+            rocket = { x: 80, y: H / 2 - 20, vx: 0, vy: -0.1, angle: 0, invul: 0, angleDisplay: 0, roer: 0 };
+            stars2 = makeStars(60);
+            nebulae2 = [
+                { x: W * 0.25, y: H * 0.2, r: 150, hue: 195, sat: 60, light: 88, a: 0.12, sp: 0.18 },
+                { x: W * 0.85, y: H * 0.6, r: 120, hue: 210, sat: 55, light: 90, a: 0.1, sp: 0.25 },
+                { x: W * 0.45, y: H * 0.85, r: 170, hue: 185, sat: 60, light: 85, a: 0.11, sp: 0.14 },
+            ];
+            setMelody([196, 220, 246, 261, 293, 261, 246, 220], 280);
+            setMusicActive(true);
+            lvlTimeout = 60 * 60;
+            lvlSpeed = 3.5; effSpeed = 3.5;
+        }
+        function initLevel3() {
+            rocket = { x: 80, y: H / 2 - 20, vx: 0, vy: -0.1, angle: 0, invul: 0, angleDisplay: 0, roer: 0 };
+            stars2 = makeStars(70);
+            nebulae2 = [
+                { x: W * 0.2, y: H * 0.3, r: 150, hue: 290, sat: 70, light: 58, a: 0.16, sp: 0.16 },
+                { x: W * 0.75, y: H * 0.7, r: 130, hue: 320, sat: 70, light: 60, a: 0.13, sp: 0.22 },
+                { x: W * 0.5, y: H * 0.1, r: 110, hue: 255, sat: 60, light: 62, a: 0.12, sp: 0.12 },
+            ];
+            setMelody([174, 196, 220, 246, 261, 246, 220, 196], 260);
+            setMusicActive(true);
+            lvlTimeout = 90 * 60;
+            lvlSpeed = 3.2; effSpeed = 3.2;
+            setupRings();
+        }
+        function initLevel4() {
+            rocket = { x: W / 2 - 20, y: H - 160, vx: 0, vy: 0, angle: 0, invul: 0, angleDisplay: 0 };
+            stars1 = makeStars(50);
+            setMelody([262, 294, 330, 349, 392, 349, 330, 294], 260);
+            setMusicActive(true);
+            lvlDuration = 45 * 60;
+            laserTimer = 0; laserIdx = 0; laserPhase = 'cool';
+            setupLasers();
+            setupRuines();
+            setupKeyFragments();
         }
 
         function createRockColumn(yStart, yEnd) {
@@ -3229,24 +3246,18 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             pasTekst(TX('menu.ondertitel'), W / 2, 260, W - 96);
 
             // Level preview cards
-            const lvls = [
-                { id: 1, name: TX('lv1.naam'), sub: TX('lv1.kaart'), color: '#4a9eff', mode: 'FLIGHT', rescued: { n: 'meisje', c: 4, sheet: 'meisje_komeet_spritesheet' } },
-                { id: 2, name: TX('lv2.naam'), sub: TX('lv2.kaart'), color: '#c85a2a', mode: 'SPACE', rescued: { n: 'mama', c: 3, sheet: 'mama_komeet_spritesheet' } },
-                { id: 3, name: TX('lv3.naam'), sub: TX('lv3.kaart'), color: '#d4a853', mode: 'SPACE', rescued: { n: 'neef', c: 3, sheet: 'neef_komeet_spritesheet' } },
-                { id: 4, name: TX('lv4.naam'), sub: TX('lv4.kaart'), color: '#40E0D0', mode: 'FLIGHT', rescued: { n: 'zoon', c: 3, sheet: 'zoon_komeet_spritesheet' } },
-            ];
+            const lvls = LEVELS.map(l => ({ id: l.id, name: TX('lv' + l.id + '.naam'), sub: TX('lv' + l.id + '.kaart'), color: l.kleur, mode: l.mode, rescued: l.familie }));
             // Bepaal welk level de "laatste behaalde" beker heeft (hoogste tier, hoogste id)
             const p2 = getProgress();
             let lastCupLid = 0, lastCupTier = 0;
-            for (let id = 1; id <= 4; id++) {
+            LEVELS.forEach(({ id }) => {
                 const b2 = (p2[id] && p2[id].best) || 0;
                 const tier = getCupTier(id, b2);
                 if (tier > 0 && tier >= lastCupTier) { lastCupTier = tier; lastCupLid = id; }
-            }
+            });
 
             lvls.forEach((lv, i) => {
-                const col = i % 2, row = Math.floor(i / 2);
-                const lx = 20 + col * 235, ly = 285 + row * 108;
+                const { x: lx, y: ly } = kaartPlek(i);
                 const unlocked = isUnlocked(lv.id);
                 const beaten = hasBeatenGoal(lv.id);
                 const hovered = menuHoverCard === lv.id && unlocked;
@@ -3310,16 +3321,18 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             // Draw rescued family (larger, between cards and play button)
             // Elk familielid verschijnt zodra het bijbehorende level is behaald (goal beaten)
             const family = [];
-            const lastBeaten = [1, 2, 3, 4].filter(hasBeatenGoal).pop() || 0;
-            family.push(hasBeatenGoal(1)
+            const famLevels = LEVELS.filter(l => l.familie);
+            const lastBeaten = famLevels.map(l => l.id).filter(hasBeatenGoal).pop() || 0;
+            const eersteFam = famLevels.length ? famLevels[0].id : 0;
+            family.push(eersteFam && hasBeatenGoal(eersteFam)
                 ? { k: 'rocketman' }
                 : { k: 'rocketman_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: true });
-            if (hasBeatenGoal(1)) family.push({ k: 'meisje_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: lastBeaten === 1 });
-            if (hasBeatenGoal(2)) family.push({ k: 'mama_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: lastBeaten === 2 });
-            if (hasBeatenGoal(3)) family.push({ k: 'neef_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: lastBeaten === 3 });
-            if (hasBeatenGoal(4)) family.push({ k: 'zoon_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: lastBeaten === 4 });
+            famLevels.forEach(l => {
+                if (hasBeatenGoal(l.id)) family.push({ k: l.familie.n + '_bevrijd_spritesheet', cols: 3, rows: 2, frames: 6, animate: lastBeaten === l.id });
+            });
 
-            const cardsBottom = 285 + 108 + 95;
+            const laatsteKaart = kaartPlek(LEVELS.length - 1);
+            const cardsBottom = laatsteKaart.y + laatsteKaart.h;
             const btnTop = H - 70;
             const gapH = btnTop - cardsBottom;
             const fh = Math.floor(gapH * 0.88);
@@ -3400,16 +3413,11 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             if (gameMode === 'menu') {
                 const tdx = cx - TAAL_BTN.x, tdy = cy - TAAL_BTN.y;
                 if (tdx * tdx + tdy * tdy < TAAL_BTN.r * TAAL_BTN.r) { wisselTaal(); return; }
-                const lvls = [{ id: 1, col: 0, row: 0 }, { id: 2, col: 1, row: 0 }, { id: 3, col: 0, row: 1 }, { id: 4, col: 1, row: 1 }];
-                for (const lv of lvls) {
-                    const lx = 20 + lv.col * 235, ly = 285 + lv.row * 108;
-                    if (cx > lx && cx < lx + 220 && cy > ly && cy < ly + 95) {
-                        if (isUnlocked(lv.id) || devUnlocked) { selectLevel(lv.id, devUnlocked); return; }
-                    }
-                }
+                const kaart = kaartOnder(cx, cy);
+                if (kaart && (isUnlocked(kaart) || devUnlocked)) { selectLevel(kaart, devUnlocked); return; }
                 // Big play button → start level intro
                 if (cx > W / 2 - 120 && cx < W / 2 + 120 && cy > H - 75 && cy < H - 10) {
-                    selectLevel(isUnlocked(4) ? 4 : isUnlocked(3) ? 3 : isUnlocked(2) ? 2 : 1);
+                    selectLevel(LEVELS.map(l => l.id).filter(isUnlocked).pop() || 1);
                     return;
                 }
                 if (!isMobile) {
@@ -3488,8 +3496,8 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
             drawStars(stars2, 'h');
 
-            const lvlColors = { 1: '#4a9eff', 2: '#c85a2a', 3: '#d4a853', 4: '#40E0D0' };
-            const lvlColor = lvlColors[currentLevelId] || '#40E0D0';
+            const def = huidigLevel();
+            const lvlColor = def.kleur || '#40E0D0';
 
             // Card with glowing border — brighter on hover
             ctx.fillStyle = introHoverBtn ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.6)';
@@ -3499,32 +3507,8 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             ctx.beginPath(); ctx.roundRect(30, 80, W - 60, H - 170, 20); ctx.stroke();
             ctx.shadowBlur = 0; ctx.lineWidth = 1;
 
-            const LEGEND_ALL = [
-                'gold', 'ammo', 'green', 'blue', 'red', 'black', 'clock', 'comet',
-            ];
-            const lvls = [
-                {
-                    id: 1, name: TX('lv1.naam'), lore: TX('lv1.verhaal'), goal: TX('lv1.doel'),
-                    mode: 'FLIGHT', sub: TX('lv1.besturing'),
-                    legend: [...LEGEND_ALL, 'bird']
-                },
-                {
-                    id: 2, name: TX('lv2.naam'), lore: TX('lv2.verhaal'), goal: TX('lv2.doel'),
-                    mode: 'SPACE', sub: TX('lv2.besturing'),
-                    legend: LEGEND_ALL
-                },
-                {
-                    id: 3, name: TX('lv3.naam'), lore: TX('lv3.verhaal'), goal: TX('lv3.doel'),
-                    mode: 'SPACE', sub: TX('lv3.besturing'),
-                    legend: [...LEGEND_ALL.filter(l => l !== 'red'), 'ring']
-                },
-                {
-                    id: 4, name: TX('lv4.naam'), lore: TX('lv4.verhaal'), goal: TX('lv4.doel'),
-                    mode: 'FLIGHT', sub: TX('lv4.besturing'),
-                    legend: ['ammo', 'keyFragment', 'clock', 'green', 'blue', 'laser']
-                },
-            ];
-            const lv = lvls[currentLevelId - 1] || lvls[0];
+            const k = 'lv' + def.id;
+            const lv = { id: def.id, name: TX(k + '.naam'), lore: TX(k + '.verhaal'), goal: TX(k + '.doel'), mode: def.mode, sub: TX(k + '.besturing'), legend: def.legenda };
 
             ctx.textAlign = 'center';
             ctx.fillStyle = '#40E0D0'; ctx.font = 'bold 26px sans-serif';
@@ -3800,7 +3784,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
         }
         function advanceAfterCutscene() {
             const nextId = currentLevelId + 1;
-            if (nextId <= 4) { unlockLevel(nextId); }
+            if (levelDef(nextId)) { unlockLevel(nextId); }
             gameMode = 'menu';
             setMusicActive(false);
             setTimeout(() => setMusicActive(true), 200);
@@ -4119,7 +4103,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                                 bossDefeated = true;
                                 levelGoalBeaten = true;
                                 saveGoalBeaten(currentLevelId);
-                                if (currentLevelId < 4) unlockLevel(currentLevelId + 1);
+                                if (levelDef(currentLevelId + 1)) unlockLevel(currentLevelId + 1);
                                 popup = { text: '⭐ ' + TX('pop.mamaVrij'), timer: 180, color: '#FFD700' };
                             }
                             boss.dead = true; boss = null;
@@ -4868,10 +4852,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
             } else if (gameMode === 'playing' || gameMode === 'dying' || gameMode === 'levelComplete') {
                 // Update
                 if (gameMode === 'playing') {
-                    if (currentLevelId === 1) updateLevel1();
-                    else if (currentLevelId === 2) updateLevel2();
-                    else if (currentLevelId === 3) updateLevel3();
-                    else if (currentLevelId === 4) updateLevel4();
+                    huidigLevel().update();
                     if (gameMode === 'playing' && rocket.invul <= 0) coins.forEach(c => { if (!c.dead && c.type === 'red' && raketRaakt(c.x + 18, c.y + 18, 16)) { c.dead = true; triggerDeath(); } });
                     updateParticles();
                 } else if (gameMode === 'dying') {
@@ -4901,10 +4882,7 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
                 }
 
                 // Draw
-                if (currentLevelId === 1) drawLevel1();
-                else if (currentLevelId === 2) drawLevel2();
-                else if (currentLevelId === 3) drawLevel3();
-                else if (currentLevelId === 4) drawLevel4();
+                huidigLevel().teken();
 
                 // Death flash
                 if (deathFlash > 0) { ctx.fillStyle = `rgba(255,30,0,${deathFlash * 0.55})`; ctx.fillRect(0, 0, W, H); }
@@ -4969,20 +4947,19 @@ return { drawItem, drawBeker, drawSleutel, drawIcoon };
 
         // ── Boot ───────────────────────────────────────────────────
         unlockLevel(1);
-        const CUTSCENE_FIGUREN = { 1: ['meisje', '👧'], 2: ['mama', '👩'], 3: ['neef', '🧒'], 4: ['zoon', '👦'] };
         function cutsceneVoor(id) {
-            const f = CUTSCENE_FIGUREN[id];
+            const def = levelDef(id), f = def && def.familie;
             if (!f) return { headline: TX('voltooid'), emoji: '🎉', rescued: '', buff: '' };
-            return { headline: TX('cs' + id + '.kop') + ' ' + f[1], sprite: f[0] + '_bevrijd_spritesheet', emoji: f[1], rescued: TX('cs' + id + '.zegt'), buff: TX('cs' + id + '.buff'), frames: 6, cols: 3, rows: 2, fps: 8 };
+            return { headline: TX('cs' + id + '.kop') + ' ' + f.emoji, sprite: f.n + '_bevrijd_spritesheet', emoji: f.emoji, rescued: TX('cs' + id + '.zegt'), buff: TX('cs' + id + '.buff'), frames: 6, cols: 3, rows: 2, fps: 8 };
         }
         loadImages(() => {
             const params = new URLSearchParams(location.search);
             const pv = parseInt(params.get('preview'));
             const pl = parseInt(params.get('play'));
-            if (pv >= 1 && pv <= 4) {
+            if (levelDef(pv)) {
                 currentLevelId = pv;
                 showCutscene(cutsceneVoor(pv));
-            } else if (pl >= 1 && pl <= 4) {
+            } else if (levelDef(pl)) {
                 devUnlocked = true;
                 initAudio();
                 const startScore = parseInt(params.get('score')) || 0;

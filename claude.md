@@ -113,7 +113,7 @@ Na het voltooien van een level wordt `showCutscene(data)` aangeroepen met:
 De `drawCutscene()` functie detecteert `d.frames` en tekent een sprite sheet animatie.
 
 ### Bekers (cups)
-Score-drempelwaarden per level (`MEDALS` object):
+Score-drempelwaarden per level (`medailles` in `LEVELS`):
 - Level 1: brons=100, zilver=250, goud=500
 - Level 2: brons=150, zilver=375, goud=750
 - Level 3: brons=200, zilver=500, goud=1000
@@ -122,6 +122,28 @@ Score-drempelwaarden per level (`MEDALS` object):
 Cups worden getoond op de level-kaart (top-rechts, 80×80) en in de naam-invoer overlay.
 Functie: `getCupKey(lid, score)` → `'cup_bronze'` / `'cup_silver'` / `'cup_gold'` / `null`
 Functie: `drawCupFrame(ctx, key, dx, dy, dw, dh)` → tekent huidig animatieframe van de beker
+
+---
+
+## Levels: de lijst `LEVELS`
+
+Alles wat bij een level hoort staat in één blok in `LEVELS` (in `RocketmanAdventure.html`, bij de medailles):
+`id`, `mode` (`FLIGHT` of `SPACE`), `kleur`, `medailles`, `legenda` (iconen op het intro-scherm), `familie` (optioneel) en de functies `init`, `update` en `teken`.
+Menu, kaarten, bekers, intro, cutscene, ontgrendelen, `?preview=` en `?play=` lezen allemaal uit deze lijst. `ruimteLevel()` is `mode === 'SPACE'`.
+
+Teksten blijven in de vertaaltabel, per taal: `lv<id>.naam`, `.kaart`, `.verhaal`, `.doel`, `.besturing` en voor de cutscene `cs<id>.kop`, `.zegt`, `.buff`.
+
+### Nieuw level toevoegen
+1. Schrijf `initLevel5()`, `updateLevel5()` en `drawLevel5()`. `init` zet raket, achtergrond, melodie en timers; `startLevel` doet de algemene reset al.
+2. Voeg een blok toe aan `LEVELS`.
+3. Voeg de `lv5.…`-teksten toe in NL en EN.
+4. Zonder `familie` toont de kaart geen komeet, komt er niemand bij in de familierij en geeft de cutscene "Voltooid!".
+
+Let op: de kaarten staan in een raster van 2 breed (`kaartPlek(i)`). Bij 5 of meer levels schuift de familierij omlaag en wordt het menu te vol. Dat moet bij het eerste nieuwe level opnieuw ingedeeld worden.
+
+Nog niet in de lijst, omdat ze alleen binnen één level spelen: `blackHoleTimer3`, de pop-up `pop.mamaVrij` en de botsingscirkels in het debugscherm (toets D).
+
+De buffs in de cutscenes (+5 HP, extra leven, dubbele munitie, 2 kogels) zijn alleen tekst. Ze zitten niet in de gameplay.
 
 ---
 
