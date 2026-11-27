@@ -1,4 +1,4 @@
-const CACHE = 'rocketman-v3';
+const CACHE = 'rocketman-v4';
 
 const ASSETS = [
   '/',
